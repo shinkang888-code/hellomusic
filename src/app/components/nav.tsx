@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ThemeToggle } from "./theme-toggle";
 
 export function Nav({
   active,
@@ -19,7 +18,7 @@ export function Nav({
 
   return (
     <header className="sticky top-0 z-50 border-b border-theme bg-nav backdrop-blur">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 pr-24 sm:pr-28">
         <Link href="/" className="flex shrink-0 items-center gap-2 text-lg font-bold text-main">
           <Image
             src="/brand/lonex-logo.png"
@@ -44,7 +43,6 @@ export function Nav({
               {it.label}
             </Link>
           ))}
-          <ThemeToggle />
         </div>
       </nav>
     </header>

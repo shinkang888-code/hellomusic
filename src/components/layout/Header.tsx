@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/app/components/theme-toggle";
 
 const navItems = [
   { href: "/", label: "홈" },
@@ -56,7 +55,6 @@ export function Header() {
           >
             🎛 대시보드
           </a>
-          <ThemeToggle />
         </div>
       </nav>
     </header>
