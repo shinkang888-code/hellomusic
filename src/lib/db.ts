@@ -1,12 +1,28 @@
-import { neon } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 
-const databaseUrl = process.env.DATABASE_URL;
+let cachedSql: NeonQueryFunction<false, false> | null = null;
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL 환경변수가 설정되지 않았습니다.");
+function getSql(): NeonQueryFunction<false, false> {
+  if (cachedSql) return cachedSql;
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL 환경변수가 설정되지 않았습니다.");
+  }
+  cachedSql = neon(databaseUrl);
+  return cachedSql;
 }
 
-export const sql = neon(databaseUrl);
+/** 빌드 시점 import 평가를 피하기 위해 lazy proxy */
+export const sql = new Proxy(function () {} as unknown as NeonQueryFunction<false, false>, {
+  apply(_target, _thisArg, args) {
+    return (getSql() as (...a: unknown[]) => unknown)(...args);
+  },
+  get(_target, prop) {
+    const fn = getSql() as unknown as Record<string | symbol, unknown>;
+    const val = fn[prop];
+    return typeof val === "function" ? val.bind(fn) : val;
+  },
+});
 
 export type Model = {
   id: number;
