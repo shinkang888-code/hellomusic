@@ -10,13 +10,11 @@ import {
   chitchatForCharacter,
   type FloorCharacterSlot,
 } from "./floor-plan-characters";
-import { DEMO_DEPARTMENTS, resolveFloorCharacter } from "./demo-characters";
+import { resolveFloorCharacter } from "./demo-characters";
 import { type Department, type Employee, STATUS_META } from "./types";
-import { avatarForEmployee } from "./avatars";
 
 type Slot = {
   character: FloorCharacterSlot;
-  dept: Department;
   rep: Employee;
 };
 
@@ -35,9 +33,8 @@ function gestureClass(g: FloorCharacterSlot["gesture"]): string {
   return "anim-chibi-idle";
 }
 
-function avatarSrc(slot: FloorCharacterSlot, emp: Employee): string {
-  if (emp.id >= 9000) return avatarPath(slot.avatar);
-  return avatarForEmployee(emp.slug);
+function avatarSrc(slot: FloorCharacterSlot): string {
+  return avatarPath(slot.avatar);
 }
 
 function chitchatFor(emp: Employee, slot: FloorCharacterSlot, tick: number): string {
@@ -46,7 +43,7 @@ function chitchatFor(emp: Employee, slot: FloorCharacterSlot, tick: number): str
 }
 
 export function BuildingScene({
-  departments,
+  departments: _departments,
   employees,
   onSelect,
 }: {
@@ -54,21 +51,13 @@ export function BuildingScene({
   employees: Employee[];
   onSelect: (e: Employee) => void;
 }) {
-  const depts = departments.length > 0 ? departments : DEMO_DEPARTMENTS;
-
-  const deptBySlug = useMemo(
-    () => new Map(depts.map((d) => [d.slug, d])),
-    [depts],
-  );
-
+  // 평면도 캐릭터는 DB 부서 slug(room-* / floor-*)와 무관하게 항상 표시
   const slots = useMemo<Slot[]>(() => {
-    return FLOOR_CHARACTERS.map((character, i) => {
-      const rep = resolveFloorCharacter(character, employees, i);
-      const dept = deptBySlug.get(character.zone);
-      if (!dept) return null;
-      return { character, dept, rep };
-    }).filter(Boolean) as Slot[];
-  }, [employees, deptBySlug]);
+    return FLOOR_CHARACTERS.map((character, i) => ({
+      character,
+      rep: resolveFloorCharacter(character, employees, i),
+    }));
+  }, [employees]);
 
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -154,7 +143,7 @@ export function BuildingScene({
                       }`}
                     >
                       <Image
-                        src={avatarSrc(s.character, s.rep)}
+                        src={avatarSrc(s.character)}
                         alt={s.rep.name}
                         width={80}
                         height={80}
