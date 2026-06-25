@@ -313,7 +313,7 @@ function mdToHtml(md: string): string {
   return out.join("\n");
 }
 
-function downloadWord(title: string, md: string, links?: LinkItem[]) {
+function buildHtmlDoc(title: string, md: string, links?: LinkItem[]): string {
   let inner = mdToHtml(md);
   if (links && links.length) {
     inner +=
@@ -328,27 +328,137 @@ function downloadWord(title: string, md: string, links?: LinkItem[]) {
         .join("") +
       "</ul>";
   }
-  const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${escapeHtml(
+  return `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${escapeHtml(
     title,
   )}</title><style>
-    body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:11pt;line-height:1.6;color:#222;}
+    body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:11pt;line-height:1.6;color:#222;max-width:800px;margin:24px auto;padding:0 16px;}
     h1{font-size:20pt;} h2{font-size:15pt;border-bottom:1px solid #ccc;padding-bottom:4px;} h3{font-size:12.5pt;} h4{font-size:11.5pt;}
     table{border-collapse:collapse;width:100%;margin:8px 0;} th,td{border:1px solid #999;padding:6px 8px;font-size:10.5pt;text-align:left;} th{background:#f0f3f7;}
     ul,ol{margin:6px 0 6px 18px;} code{background:#f2f2f2;padding:1px 4px;border-radius:3px;font-family:Consolas,monospace;}
   </style></head><body>${inner}</body></html>`;
-  const blob = new Blob(["\ufeff" + html], { type: "application/msword" });
+}
+
+function safeName(title: string): string {
+  return (
+    (title || "lonex-문서")
+      .replace(/[\\/:*?"<>|]/g, "_")
+      .slice(0, 60)
+      .trim() || "lonex-문서"
+  );
+}
+
+function downloadBlob(filename: string, blob: Blob) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  const safe = (title || "lonex-문서")
-    .replace(/[\\/:*?"<>|]/g, "_")
-    .slice(0, 60)
-    .trim();
-  a.download = `${safe || "lonex-문서"}.doc`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// 마크다운 → 읽기 좋은 평문 줄 배열 (txt / hwpx 용)
+function mdToPlainLines(md: string): string[] {
+  const src = (md || "").replace(/\r\n/g, "\n").split("\n");
+  const lines: string[] = [];
+  for (const raw of src) {
+    let line = raw;
+    if (
+      /^\s*\|?[\s:|-]+\|?\s*$/.test(line) &&
+      line.includes("-") &&
+      line.includes("|")
+    ) {
+      continue; // 표 구분선
+    }
+    if (/^\s*\|.*\|\s*$/.test(line)) {
+      line = line
+        .trim()
+        .replace(/^\||\|$/g, "")
+        .split("|")
+        .map((c) => c.trim())
+        .join("   ");
+    }
+    line = line
+      .replace(/^#{1,6}\s+/, "")
+      .replace(/^\s*[-*+]\s+/, "• ")
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1 ($2)");
+    lines.push(line.replace(/\s+$/g, ""));
+  }
+  return lines;
+}
+
+function downloadWord(title: string, md: string, links?: LinkItem[]) {
+  const blob = new Blob(["\ufeff" + buildHtmlDoc(title, md, links)], {
+    type: "application/msword",
+  });
+  downloadBlob(`${safeName(title)}.doc`, blob);
+}
+
+function downloadHtml(title: string, md: string, links?: LinkItem[]) {
+  const blob = new Blob([buildHtmlDoc(title, md, links)], {
+    type: "text/html;charset=utf-8",
+  });
+  downloadBlob(`${safeName(title)}.html`, blob);
+}
+
+function downloadTxt(title: string, md: string, links?: LinkItem[]) {
+  let text = mdToPlainLines(md).join("\r\n");
+  if (links && links.length) {
+    text +=
+      "\r\n\r\n[참고 링크]\r\n" +
+      links.map((l) => `- ${l.label}: ${l.url}`).join("\r\n");
+  }
+  const blob = new Blob(["\ufeff" + text], { type: "text/plain;charset=utf-8" });
+  downloadBlob(`${safeName(title)}.txt`, blob);
+}
+
+// HWPX(한글): 검증된 빈 템플릿의 section0.xml만 교체해 재압축
+async function downloadHwpx(title: string, md: string, links?: LinkItem[]) {
+  const JSZip = (await import("jszip")).default;
+  const res = await fetch("/templates/skeleton.hwpx");
+  if (!res.ok) throw new Error("template fetch failed");
+  const zip = await JSZip.loadAsync(await res.arrayBuffer());
+
+  const secFile = zip.file("Contents/section0.xml");
+  if (!secFile) throw new Error("section0.xml missing");
+  const sec = await secFile.async("string");
+
+  const lines = mdToPlainLines(md);
+  if (links && links.length) {
+    lines.push("", "[참고 링크]");
+    links.forEach((l) => lines.push(`- ${l.label}: ${l.url}`));
+  }
+  const paras = lines
+    .map((line) => {
+      const inner =
+        line.trim() === "" ? "<hp:t/>" : `<hp:t>${escapeHtml(line)}</hp:t>`;
+      return `<hp:p id="0" paraPrIDRef="0" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0"><hp:run charPrIDRef="0">${inner}</hp:run></hp:p>`;
+    })
+    .join("");
+  const newSec = sec.replace("</hs:sec>", `${paras}</hs:sec>`);
+
+  // mimetype을 첫 엔트리 + 비압축(STORE)으로 재패킹
+  const out = new JSZip();
+  out.file("mimetype", await zip.file("mimetype")!.async("uint8array"), {
+    compression: "STORE",
+  });
+  for (const n of Object.keys(zip.files)) {
+    if (n === "mimetype") continue;
+    const entry = zip.files[n];
+    if (entry.dir) continue;
+    out.file(
+      n,
+      n === "Contents/section0.xml" ? newSec : await entry.async("uint8array"),
+    );
+  }
+  const blob = await out.generateAsync({
+    type: "blob",
+    mimeType: "application/hwp+zip",
+  });
+  downloadBlob(`${safeName(title)}.hwpx`, blob);
 }
 
 function firstLine(s: string): string {
@@ -676,18 +786,35 @@ function LeaderMessage({ msg }: { msg: ChatMessage }) {
               </div>
             )}
             {msg.wordable && (
-              <button
-                onClick={() =>
-                  downloadWord(
-                    msg.title || `${leader.label} 문서`,
-                    msg.text,
-                    msg.links,
-                  )
-                }
-                className="mt-2.5 inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-blue-500"
-              >
-                📄 워드로 저장
-              </button>
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] text-slate-500">📄 저장:</span>
+                {(
+                  [
+                    ["TXT", downloadTxt],
+                    ["HTML", downloadHtml],
+                    ["워드", downloadWord],
+                    ["HWPX", downloadHwpx],
+                  ] as const
+                ).map(([label, fn]) => (
+                  <button
+                    key={label}
+                    onClick={async () => {
+                      try {
+                        await fn(
+                          msg.title || `${leader.label} 문서`,
+                          msg.text,
+                          msg.links,
+                        );
+                      } catch {
+                        alert(`${label} 파일 생성에 실패했습니다.`);
+                      }
+                    }}
+                    className="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-300 transition hover:bg-blue-600 hover:text-white hover:ring-blue-600"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
           <span className="shrink-0 text-[10px] text-slate-600">{msg.time}</span>
