@@ -410,7 +410,117 @@ body {
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #f8fafc;
+  border-top-color: #fffbeb;
+}
+
+/* ===== 애니메이션풍 학원 평면도 (SVG) ===== */
+.anime-floor-plan {
+  display: block;
+  font-family: var(--font-geist-sans), "Malgun Gothic", sans-serif;
+}
+.anime-floor-bg {
+  animation: anime-bg-shift 12s ease-in-out infinite;
+}
+@keyframes anime-bg-shift {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.04); }
+}
+.anime-hallway {
+  animation: anime-hall-pulse 4s ease-in-out infinite;
+}
+@keyframes anime-hall-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.88; }
+}
+.anime-room-body {
+  transition: filter 0.25s ease;
+}
+.anime-room:hover .anime-room-body {
+  filter: brightness(1.06);
+}
+.anime-room-shine .anime-room-body {
+  animation: anime-grand-glow 3s ease-in-out infinite;
+}
+@keyframes anime-grand-glow {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 10px rgba(155, 35, 53, 0.45)); }
+}
+.anime-room-label {
+  fill: #1e2a4a;
+}
+.anime-room-sublabel {
+  fill: #64748b;
+}
+.anime-room-icon {
+  pointer-events: none;
+  animation: anime-icon-bob 2.4s ease-in-out infinite;
+}
+@keyframes anime-icon-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.anime-note {
+  animation: anime-note-float 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes anime-note-float {
+  0%, 100% { transform: translateY(0) rotate(-8deg); opacity: 0.35; }
+  50% { transform: translateY(-12px) rotate(8deg); opacity: 0.75; }
+}
+.anime-sparkle {
+  animation: anime-sparkle 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes anime-sparkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+.anime-title-banner {
+  animation: anime-banner-in 0.8s ease-out both;
+}
+@keyframes anime-banner-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anime-floor-frame {
+  position: relative;
+  background: linear-gradient(180deg, #fef9c3 0%, #fde68a 40%, #f5f0e8 100%);
+  padding: 6px;
+  border-radius: 0 0 1rem 1rem;
+}
+.anime-floor-frame::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 2px dashed rgba(30, 42, 74, 0.12);
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+.anim-chibi-bob {
+  animation: chibi-bob var(--pace-dur, 9s) ease-in-out infinite;
+  animation-delay: var(--pace-delay, 0s);
+}
+@keyframes chibi-bob {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-4px); }
+  75% { transform: translateY(2px); }
+}
+.bubble-floor-anime {
+  background: #ffffff;
+  border: 2px solid #1e2a4a;
+  border-radius: 14px 14px 14px 4px;
+  box-shadow: 3px 3px 0 rgba(30, 42, 74, 0.2);
+  font-size: 9px;
+  max-width: 120px;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
+  padding: 5px 7px;
+}
+.bubble-floor-anime::after {
+  border-top-color: #ffffff;
+  border-width: 6px;
 }
 
 /* ===== 업무지시방 (카카오톡 스타일) ===== */
@@ -503,7 +613,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .anim-bob, .anim-work, .anim-ring, .anim-alert, .anim-bubble,
   .anim-screen, .anim-walk, .speech-bubble, .anim-pace, .anim-face,
-  .bubble-floor, .kk-dot {
+  .bubble-floor, .kk-dot, .anime-floor-bg, .anime-hallway, .anime-room-shine,
+  .anime-room-icon, .anime-note, .anime-sparkle, .anime-title-banner,
+  .anim-chibi-bob {
     animation: none;
   }
 }

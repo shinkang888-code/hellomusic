@@ -2,39 +2,40 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { AnimatedFloorPlan } from "./animated-floor-plan";
 import { type Department, type Employee, STATUS_META } from "./types";
 import { avatarForEmployee } from "./avatars";
 
 const CHITCHAT = [
   "오늘 연습곡 뭐예요? 🎹",
   "콩쿠르 준비 화이팅!",
-  "Theory Room 이론 시험 있어요",
-  "그랜드 스튜디오 예약됐어요 ✨",
+  "Theory Room 이론 시험!",
+  "그랜드 스튜디오 예약 ✨",
   "등·하원 알림 보냈어요 📱",
   "체험레슨 상담 잡았어요",
   "연습실 비었어요!",
-  "발표회 리허설 시작~ 🎵",
+  "발표회 리허설~ 🎵",
   "바이엘 다음 페이지!",
   "원장님 부르셨대요",
-  "손가락 스트레칭 했어요?",
-  "레슨 10분 전이에요 ⏰",
-  "쉬는 시간이에요~ ☕",
-  "조골조골 연습 중 🎵",
+  "손가락 스트레칭!",
+  "레슨 10분 전 ⏰",
+  "쉬는 시간~ ☕",
+  "조골조골 연습 중",
   "입시곡 어려워요…",
 ];
 
-/** 1층 Academy Floor Plan — 도면 위 캐릭터 앵커 (% 좌표) */
+/** SVG 평면도 방 중심 (% 좌표) — animated-floor-plan.tsx 와 동기화 */
 const ROOMS = [
-  { id: "p1", label: "Practice 1", zone: "room-students", top: 14, left: 18 },
-  { id: "p2", label: "Practice 2", zone: "room-students", top: 14, left: 36 },
-  { id: "p3", label: "Practice 3", zone: "room-students", top: 14, left: 54 },
-  { id: "p4", label: "Practice 4", zone: "room-students", top: 14, left: 72 },
-  { id: "theory", label: "Theory Room · 행정실", zone: "room-admin", top: 32, left: 50 },
-  { id: "lecture", label: "Lecture Hall", zone: "room-students", top: 48, left: 50 },
-  { id: "office", label: "Office · 원장실", zone: "room-director", top: 72, left: 16 },
-  { id: "mixed", label: "Mixed Study", zone: "room-students", top: 72, left: 38 },
-  { id: "grand", label: "Grand Piano Studio · 강사실", zone: "room-teachers", top: 72, left: 62 },
-  { id: "p5", label: "Practice 5", zone: "room-students", top: 72, left: 84 },
+  { id: "p1", label: "Practice 1", zone: "room-students", top: 14, left: 11 },
+  { id: "p2", label: "Practice 2", zone: "room-students", top: 14, left: 29 },
+  { id: "p3", label: "Practice 3", zone: "room-students", top: 14, left: 48 },
+  { id: "p4", label: "Practice 4", zone: "room-students", top: 14, left: 66 },
+  { id: "theory", label: "Theory Room", zone: "room-admin", top: 41, left: 12 },
+  { id: "office", label: "Office", zone: "room-director", top: 65, left: 12 },
+  { id: "lecture", label: "Lecture Hall", zone: "room-students", top: 53, left: 40 },
+  { id: "mixed", label: "Mixed Study", zone: "room-students", top: 85, left: 32 },
+  { id: "grand", label: "Grand Studio", zone: "room-teachers", top: 45, left: 68 },
+  { id: "p5", label: "Practice 5", zone: "room-students", top: 45, left: 88 },
 ] as const;
 
 type Slot = {
@@ -46,16 +47,16 @@ type Slot = {
 function chitchatFor(emp: Employee, tick: number): string {
   if (emp.status === "error") return "🚨 확인 필요!";
   if (emp.current_task) return emp.current_task;
-  if (emp.status === "meeting") return "회의 중이에요 🗣";
-  if (emp.status === "review") return "검토 중입니다 🔍";
+  if (emp.status === "meeting") return "회의 중 🗣";
+  if (emp.status === "review") return "검토 중 🔍";
   return CHITCHAT[(emp.id + tick) % CHITCHAT.length];
 }
 
 function paceVars(id: number): React.CSSProperties {
   return {
-    "--pace-dur": `${8 + (id % 6)}s`,
+    "--pace-dur": `${7 + (id % 5)}s`,
     "--pace-delay": `${(id * 2) % 5}s`,
-    "--range": `${18 + (id % 5) * 10}px`,
+    "--range": `${14 + (id % 4) * 8}px`,
   } as React.CSSProperties;
 }
 
@@ -101,63 +102,63 @@ export function BuildingScene({
   }, []);
 
   return (
-    <div className="overflow-hidden rounded-2xl ring-2 ring-[#9B2335]/30">
-      <div className="border-b border-[#9B2335]/20 bg-[#1e2a4a] px-4 py-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="overflow-hidden rounded-2xl ring-2 ring-[#9B2335]/40 shadow-lg shadow-[#9B2335]/10">
+      {/* 애니메 타이틀 바 */}
+      <div className="relative overflow-hidden border-b-2 border-[#B8860B]/40 bg-gradient-to-r from-[#9B2335] via-[#1e2a4a] to-[#9B2335] px-4 py-3">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(255,255,255,0.08) 8px, rgba(255,255,255,0.08) 16px)",
+          }}
+        />
+        <div className="relative flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className="text-sm font-bold text-white">
-              🎹 Hello Music Academy · 1F 학원 평면도
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/80">
+              ✦ Anime Academy Map ✦
+            </p>
+            <h2 className="text-base font-black text-white drop-shadow-sm">
+              🎹 Hello Music · 1F 학원
             </h2>
-            <p className="text-[11px] text-amber-100/70">
-              원장·강사·원생 캐릭터가 연습실을 돌아다니며 잡담합니다 · 클릭하면
-              상세 보기
+            <p className="text-[11px] text-amber-100/75">
+              chibi 캐릭터가 연습실을 돌아다니며 잡담해요
             </p>
           </div>
-          <div className="flex flex-wrap gap-1 text-[9px]">
-            <span className="rounded bg-violet-500/30 px-2 py-0.5 text-violet-100">
-              원장실
+          <div className="flex flex-wrap gap-1.5 text-[9px] font-bold">
+            <span className="rounded-full border-2 border-violet-300/50 bg-violet-500/40 px-2.5 py-1 text-violet-50 shadow-sm">
+              👑 원장실
             </span>
-            <span className="rounded bg-blue-500/30 px-2 py-0.5 text-blue-100">
-              행정실
+            <span className="rounded-full border-2 border-blue-300/50 bg-blue-500/40 px-2.5 py-1 text-blue-50 shadow-sm">
+              📋 행정실
             </span>
-            <span className="rounded bg-rose-500/30 px-2 py-0.5 text-rose-100">
-              강사실
+            <span className="rounded-full border-2 border-rose-300/50 bg-rose-600/40 px-2.5 py-1 text-rose-50 shadow-sm">
+              🎼 강사실
             </span>
-            <span className="rounded bg-amber-500/30 px-2 py-0.5 text-amber-100">
-              원생학습실
+            <span className="rounded-full border-2 border-amber-300/50 bg-amber-500/40 px-2.5 py-1 text-amber-50 shadow-sm">
+              🎹 원생실
             </span>
           </div>
         </div>
       </div>
 
-      <div className="relative bg-[#f5f0e8]">
-        <Image
-          src="/images/academy-floor-plan.png"
-          alt="Hello Music Academy 1층 평면도"
-          width={1400}
-          height={900}
-          priority
-          className="h-auto w-full select-none opacity-95"
-        />
+      <div className="anime-floor-frame relative">
+        <AnimatedFloorPlan />
 
         {slots.length === 0 ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#1e2a4a]/40 px-6 text-center">
-            <p className="rounded-xl bg-white/95 px-4 py-3 text-sm text-[#1e2a4a] shadow-lg">
-              캐릭터 데이터가 없습니다.{" "}
-              <code className="text-xs">npm run init-db</code> 로 학원 조직을
-              시드해 주세요.
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#1e2a4a]/50 px-6 text-center backdrop-blur-[2px]">
+            <p className="rounded-2xl border-2 border-[#1e2a4a] bg-white px-5 py-4 text-sm font-bold text-[#1e2a4a] shadow-[4px_4px_0_#1e2a4a]">
+              캐릭터 데이터가 없습니다.
+              <br />
+              <code className="mt-2 inline-block text-xs font-normal">
+                npm run init-db
+              </code>
             </p>
           </div>
         ) : (
-          <div className="pointer-events-none absolute inset-0">
+          <div className="pointer-events-none absolute inset-0 z-10">
             {slots.map((s, i) => {
               const meta = STATUS_META[s.rep.status];
               const msg = chitchatFor(s.rep, tick);
-              const isLeader =
-                s.rep.slug.includes("lead") ||
-                s.rep.slug.includes("director-principal") ||
-                s.rep.slug.includes("teacher-park") ||
-                s.rep.slug.includes("teacher-choi");
               const roleLabel = s.rep.slug.includes("director")
                 ? "원장"
                 : s.rep.slug.includes("teacher") || s.rep.slug.includes("admin")
@@ -167,7 +168,7 @@ export function BuildingScene({
               return (
                 <div
                   key={`${s.room.id}-${s.rep.slug}`}
-                  className="anim-pace absolute -translate-x-1/2 -translate-y-full"
+                  className="anim-pace absolute -translate-x-1/2 -translate-y-1/2"
                   style={{
                     top: `${s.room.top}%`,
                     left: `${s.room.left}%`,
@@ -176,7 +177,7 @@ export function BuildingScene({
                 >
                   <span
                     key={`${s.rep.id}-${tick}`}
-                    className="bubble-floor"
+                    className="bubble-floor bubble-floor-anime"
                     title={msg}
                   >
                     {msg}
@@ -185,25 +186,27 @@ export function BuildingScene({
                     type="button"
                     onClick={() => onSelect(s.rep)}
                     title={`${s.rep.name} · ${s.room.label}`}
-                    className="pointer-events-auto group flex flex-col items-center transition-transform hover:scale-110"
+                    className="pointer-events-auto group flex flex-col items-center transition-transform hover:scale-110 active:scale-95"
                   >
                     <span
-                      className="mb-0.5 max-w-[80px] truncate rounded px-1.5 py-0.5 text-[8px] font-bold text-white shadow"
+                      className="mb-0.5 max-w-[76px] truncate rounded-full border-2 border-[#1e2a4a]/80 px-2 py-0.5 text-[8px] font-black text-white shadow-[2px_2px_0_rgba(30,42,74,0.35)]"
                       style={{ backgroundColor: s.dept.color }}
                     >
                       {roleLabel} {s.rep.name}
                     </span>
-                    <span className="anim-face relative inline-block">
-                      <Image
-                        src={avatarForEmployee(s.rep.slug)}
-                        alt={s.rep.name}
-                        width={64}
-                        height={64}
-                        className="h-[clamp(40px,8vw,60px)] w-auto object-contain drop-shadow-lg"
-                        priority={i < 4}
-                      />
+                    <span className="anim-face relative inline-block drop-shadow-[0_4px_8px_rgba(30,42,74,0.35)]">
+                      <span className="anim-chibi-bob inline-block" style={paceVars(s.rep.id + i)}>
+                        <Image
+                          src={avatarForEmployee(s.rep.slug)}
+                          alt={s.rep.name}
+                          width={72}
+                          height={72}
+                          className="h-[clamp(44px,9vw,64px)] w-auto object-contain"
+                          priority={i < 4}
+                        />
+                      </span>
                       <span
-                        className={`absolute bottom-0 right-0 size-2.5 rounded-full ring-2 ring-white ${meta.dot}`}
+                        className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white shadow-sm ${meta.dot}`}
                       />
                     </span>
                   </button>
@@ -214,12 +217,12 @@ export function BuildingScene({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-3 border-t border-[#9B2335]/15 bg-[#1e2a4a] px-4 py-2 text-[10px] text-amber-100/60">
-        <span>🎹 Piano Practice 1–5</span>
-        <span>📚 Theory · Lecture</span>
-        <span>👑 Office</span>
-        <span>🎼 Grand Studio</span>
-        <span className="text-amber-200/80">💬 {slots.length}명 활동 중</span>
+      <div className="flex flex-wrap items-center justify-center gap-2 border-t-2 border-[#B8860B]/30 bg-gradient-to-r from-[#1e2a4a] via-[#2a3a5c] to-[#1e2a4a] px-4 py-2.5 text-[10px] font-semibold text-amber-100/70">
+        <span className="rounded-full bg-white/10 px-2 py-0.5">🎹 Practice 1–5</span>
+        <span className="rounded-full bg-white/10 px-2 py-0.5">📚 Theory</span>
+        <span className="rounded-full bg-white/10 px-2 py-0.5">👑 Office</span>
+        <span className="rounded-full bg-white/10 px-2 py-0.5">🎼 Grand</span>
+        <span className="text-amber-200">💬 {slots.length}명 LIVE</span>
       </div>
     </div>
   );
