@@ -10,6 +10,7 @@ import {
 } from "./types";
 import { avatarFor } from "./avatars";
 import { BuildingScene } from "./building-scene";
+import { WorkChat } from "./work-chat";
 
 type EventItem = { id: number; ts: string; actor: string | null; message: string };
 
@@ -60,6 +61,7 @@ export function OfficeClient() {
   const [loading, setLoading] = useState(true);
   const [talking, setTalking] = useState<Set<number>>(new Set());
   const [view, setView] = useState<"building" | "grid">("building");
+  const [chatOpen, setChatOpen] = useState(false);
 
   const load = useCallback(async () => {
     const [c, e] = await Promise.all([
@@ -226,6 +228,12 @@ export function OfficeClient() {
             </button>
           </div>
           <button
+            onClick={() => setChatOpen(true)}
+            className="rounded-lg bg-yellow-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-yellow-300"
+          >
+            💬 업무지시방
+          </button>
+          <button
             onClick={runControlTower}
             disabled={checking}
             className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-400 disabled:opacity-50"
@@ -314,10 +322,10 @@ export function OfficeClient() {
                   >
                     {dept.label}
                   </h3>
-                  <span className="text-xs text-slate-500">{emps.length}명</span>
+                  <span className="text-xs text-slate-500">대표 1명</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {emps.map((emp) => {
+                  {emps.slice(0, 1).map((emp) => {
                     const meta = STATUS_META[emp.status];
                     return (
                       <div
@@ -354,7 +362,7 @@ export function OfficeClient() {
                               alt={emp.name}
                               width={44}
                               height={44}
-                              className="size-full rounded-full object-contain anim-bob"
+                              className="size-full rounded-full object-contain"
                             />
                           </span>
                           {emp.emoji && (
@@ -393,6 +401,15 @@ export function OfficeClient() {
           </ul>
         </aside>
       </div>
+
+      {/* 업무지시방 (카카오톡 스타일 채팅) */}
+      {chatOpen && (
+        <WorkChat
+          departments={data.departments}
+          employees={data.employees}
+          onClose={() => setChatOpen(false)}
+        />
+      )}
 
       {/* 직원 상세 모달 */}
       {selected && (

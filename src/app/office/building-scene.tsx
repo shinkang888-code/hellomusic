@@ -3,52 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { type Department, type Employee, STATUS_META } from "./types";
-import { castFramesFor } from "./avatars";
-
-// 워크 사이클 스프라이트: 좌발/우발 2프레임 교체로 자연스러운 걷기
-function Walker({
-  slug,
-  alt,
-  active,
-  seed,
-}: {
-  slug: string;
-  alt: string;
-  active: boolean;
-  seed: number;
-}) {
-  const frames = useMemo(() => castFramesFor(slug), [slug]);
-  const [idx, setIdx] = useState(0);
-  useEffect(() => {
-    if (!active) {
-      setIdx(0);
-      return;
-    }
-    let i = seed % frames.length;
-    const t = setInterval(() => {
-      i = (i + 1) % frames.length;
-      setIdx(i);
-    }, 260 + (seed % 90));
-    return () => clearInterval(t);
-  }, [active, seed, frames.length]);
-
-  return (
-    <>
-      {frames.map((src, f) => (
-        <Image
-          key={f}
-          src={src}
-          alt={alt}
-          width={120}
-          height={260}
-          className="h-full w-auto object-contain object-bottom drop-shadow-xl"
-          style={{ display: f === idx ? "block" : "none" }}
-          priority={f === 0}
-        />
-      ))}
-    </>
-  );
-}
+import { avatarFor } from "./avatars";
 
 const CHITCHAT = [
   "오늘 배포 언제죠?",
@@ -71,9 +26,9 @@ const CHITCHAT = [
   "캐릭터 귀엽지 않아요?",
 ];
 
-// 4개 층 × 4열 = 16개 부서 슬롯 (배경 빌딩 바닥에 발 정렬)
-// 각 층 바닥 면(발이 닿는 위치, 파란 슬래브 라인 바로 위) %
-const FLOOR_FEET = [27, 50.5, 73, 94.5];
+// 4개 층 × 4열 = 16개 부서 슬롯
+// 각 층 바닥(짙은 네이비 슬래브 = 파란선) 바로 위에 신발이 닿도록 보정한 % 값
+const FLOOR_FEET = [28, 51.5, 74.5, 95.5];
 const COL_LEFT = [24, 44, 63, 82]; // 엘리베이터/계단(좌측) 피해서 (%)
 
 type Slot = { dept: Department; rep: Employee; top: number; left: number };
@@ -110,7 +65,7 @@ export function BuildingScene({
     return out;
   }, [departments, employees]);
 
-  // 상시 잡담: 각 슬롯에 메시지 인덱스, 주기적으로 일부만 말풍선 표시
+  // 상시 잡담: 주기적으로 일부 슬롯만 말풍선 표시
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setTick((n) => n + 1), 2600);
@@ -134,7 +89,6 @@ export function BuildingScene({
           const range = 40 + ((s.rep.id * 11) % 50); // 40~90px
           const dur = 7 + ((s.rep.id * 7) % 8); // 7~14s
           const delay = (s.rep.id * 5) % 6; // 0~5s
-          // 상시 잡담: tick + 슬롯에 따라 보일지 결정 (절반 정도가 동시에 말함)
           const show = (tick + i) % 2 === 0;
           const msg =
             s.rep.status === "error"
@@ -181,13 +135,27 @@ export function BuildingScene({
                 >
                   {/* 바닥 그림자 */}
                   <span className="absolute -bottom-0.5 left-1/2 h-1 w-6 -translate-x-1/2 rounded-[50%] bg-black/50 blur-[2px]" />
-                  {/* 캐릭터 크기를 각 층고에 맞게 축소(약 11~14% 빌딩 높이) */}
-                  <span className="anim-face block h-[clamp(36px,8vw,64px)]">
-                    <Walker
-                      slug={s.dept.slug}
+                  {/*
+                    단일 이미지(_1.png, 오른쪽 보기)를 이동 방향에 맞춰 좌우 미러링.
+                    오른쪽 이동 → 원본(코 오른쪽), 왼쪽 이동 → 좌우반전(코 왼쪽).
+                    프레임 교체(팔락거림)·옷 변화 없음.
+                  */}
+                  <span
+                    className="anim-face block h-[clamp(36px,8vw,64px)]"
+                    style={
+                      {
+                        "--pace-dur": `${dur}s`,
+                        "--pace-delay": `${delay}s`,
+                      } as React.CSSProperties
+                    }
+                  >
+                    <Image
+                      src={avatarFor(s.dept.slug)}
                       alt={s.rep.name}
-                      active={s.rep.status !== "idle"}
-                      seed={s.rep.id}
+                      width={120}
+                      height={260}
+                      className="h-full w-auto object-contain object-bottom drop-shadow-xl"
+                      priority={i < 4}
                     />
                   </span>
                   <span
