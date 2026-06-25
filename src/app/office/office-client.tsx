@@ -17,6 +17,8 @@ import { AcademyInfoModal } from "./academy-info-modal";
 import { HelloManagerButton } from "./hello-manager-button";
 import { DeptProfileEditor } from "./dept-profile-editor";
 import { deptRealAvatarUrl } from "./resize-avatar";
+import { HelloLogo } from "@/components/brand/HelloLogo";
+import { BRAND_ASSETS } from "@/data/brand-assets";
 
 type EventItem = { id: number; ts: string; actor: string | null; message: string };
 
@@ -141,35 +143,25 @@ export function OfficeClient() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
-      {/* 간판 히어로 */}
-      <div className="relative mb-6 overflow-hidden rounded-2xl ring-1 ring-theme">
+      {/* HELLO 브랜드 간판 */}
+      <div className="relative mb-6 overflow-hidden rounded-2xl ring-1 ring-[#C9A962]/30">
         <Image
-          src="/images/hero-home.png"
-          alt="Hello Music Academy"
+          src={BRAND_ASSETS.heroOffice}
+          alt="Hello Music Academy AI 학원"
           width={1600}
           height={600}
           priority
-          className="h-40 w-full object-cover sm:h-56"
+          className="h-44 w-full object-cover sm:h-56"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1e2a4a]/95 via-[#1e2a4a]/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F4]/95 via-[#F5F0E8]/60 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/brand/hello-music-logo.png"
-              alt="Hello Music"
-              width={48}
-              height={48}
-              className="size-10 rounded-lg sm:size-12"
-            />
-            <span className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Hello <span className="text-amber-300">Music</span>
-              <span className="text-white/70"> · AI 학원</span>
-            </span>
-          </div>
-          <p className="mt-2 max-w-md text-sm text-amber-100 sm:text-base">
-            Play. Learn. Grow.
+          <HelloLogo height={48} priority />
+          <p className="mt-3 text-xl font-light tracking-wide text-main sm:text-2xl">
+            Hello Music · <span className="font-semibold gradient-text">AI 학원</span>
           </p>
-          <p className="text-xs text-amber-100/70">음악으로 마음을 여는 헬로뮤직</p>
+          <p className="mt-1 text-sm tracking-[0.15em] text-sub uppercase">
+            Play · Learn · Grow
+          </p>
         </div>
       </div>
 

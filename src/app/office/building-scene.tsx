@@ -102,40 +102,32 @@ export function BuildingScene({
   }, []);
 
   return (
-    <div className="overflow-hidden rounded-2xl ring-2 ring-[#9B2335]/40 shadow-lg shadow-[#9B2335]/10">
-      {/* 애니메 타이틀 바 */}
-      <div className="relative overflow-hidden border-b-2 border-[#B8860B]/40 bg-gradient-to-r from-[#9B2335] via-[#1e2a4a] to-[#9B2335] px-4 py-3">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(255,255,255,0.08) 8px, rgba(255,255,255,0.08) 16px)",
-          }}
-        />
+    <div className="overflow-hidden rounded-2xl ring-2 ring-[#C9A962]/35 shadow-lg shadow-[#3D3D3D]/8">
+      <div className="relative overflow-hidden border-b border-[#C9A962]/30 bg-gradient-to-r from-[#3D3D3D] via-[#454545] to-[#3D3D3D] px-4 py-3">
         <div className="relative flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/80">
-              ✦ Anime Academy Map ✦
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E8D5A8]">
+              HELLO · Anime Map
             </p>
-            <h2 className="text-base font-black text-white drop-shadow-sm">
-              🎹 Hello Music · 1F 학원
+            <h2 className="text-base font-light text-[#FAF8F4]">
+              Hello Music · <span className="font-semibold">1F 학원</span>
             </h2>
-            <p className="text-[11px] text-amber-100/75">
+            <p className="text-[11px] text-[#E5E2DC]/70">
               chibi 캐릭터가 연습실을 돌아다니며 잡담해요
             </p>
           </div>
-          <div className="flex flex-wrap gap-1.5 text-[9px] font-bold">
-            <span className="rounded-full border-2 border-violet-300/50 bg-violet-500/40 px-2.5 py-1 text-violet-50 shadow-sm">
-              👑 원장실
+          <div className="flex flex-wrap gap-1.5 text-[9px] font-semibold tracking-wide">
+            <span className="rounded-full border border-[#C9A962]/40 bg-[#FAF8F4]/10 px-2.5 py-1 text-[#E8D5A8]">
+              원장실
             </span>
-            <span className="rounded-full border-2 border-blue-300/50 bg-blue-500/40 px-2.5 py-1 text-blue-50 shadow-sm">
-              📋 행정실
+            <span className="rounded-full border border-[#C9A962]/40 bg-[#FAF8F4]/10 px-2.5 py-1 text-[#E8D5A8]">
+              행정실
             </span>
-            <span className="rounded-full border-2 border-rose-300/50 bg-rose-600/40 px-2.5 py-1 text-rose-50 shadow-sm">
-              🎼 강사실
+            <span className="rounded-full border border-[#C9A962]/40 bg-[#FAF8F4]/10 px-2.5 py-1 text-[#E8D5A8]">
+              강사실
             </span>
-            <span className="rounded-full border-2 border-amber-300/50 bg-amber-500/40 px-2.5 py-1 text-amber-50 shadow-sm">
-              🎹 원생실
+            <span className="rounded-full border border-[#C9A962]/40 bg-[#FAF8F4]/10 px-2.5 py-1 text-[#E8D5A8]">
+              원생실
             </span>
           </div>
         </div>
@@ -217,7 +209,7 @@ export function BuildingScene({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-2 border-t-2 border-[#B8860B]/30 bg-gradient-to-r from-[#1e2a4a] via-[#2a3a5c] to-[#1e2a4a] px-4 py-2.5 text-[10px] font-semibold text-amber-100/70">
+      <div className="flex flex-wrap items-center justify-center gap-2 border-t-2 border-[#C9A962]/25 bg-[#3D3D3D] px-4 py-2.5 text-[10px] font-medium text-[#E5E2DC]/70">
         <span className="rounded-full bg-white/10 px-2 py-0.5">🎹 Practice 1–5</span>
         <span className="rounded-full bg-white/10 px-2 py-0.5">📚 Theory</span>
         <span className="rounded-full bg-white/10 px-2 py-0.5">👑 Office</span>

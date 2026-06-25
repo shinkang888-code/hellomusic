@@ -14,10 +14,8 @@ export function AboutValues() {
       <section className="border-t border-theme bg-elevated/20 py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-accent">
-              Core Values
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-main sm:text-4xl">
+            <p className="hello-section-label">Core Values</p>
+            <h2 className="mt-4 text-3xl font-light tracking-tight text-main sm:text-4xl">
               헬로뮤직 교육 철학
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sub">
@@ -32,7 +30,7 @@ export function AboutValues() {
                 key={value.title}
                 className="value-card rounded-2xl bg-card p-8 ring-1 ring-theme"
               >
-                <span className="flex size-14 items-center justify-center rounded-2xl bg-[#1e2a4a]/10 text-3xl">
+                <span className="flex size-14 items-center justify-center rounded-2xl bg-[#E8D5A8]/25 text-3xl ring-1 ring-[#C9A962]/30">
                   {value.icon}
                 </span>
                 <h3 className="mt-5 text-lg font-bold text-main">{value.title}</h3>

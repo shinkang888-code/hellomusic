@@ -6,10 +6,8 @@ export function ProgramsSection() {
     <section id="programs" className="border-t border-theme bg-card/50 py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-widest text-accent">
-            Programs
-          </p>
-          <h2 className="mt-3 text-3xl font-bold text-main">수강 과정</h2>
+          <p className="hello-section-label">Programs</p>
+          <h2 className="mt-4 text-3xl font-light text-main">수강 과정</h2>
           <p className="mt-4 text-sub">
             초급·중급·고급·전공·성인·이론 — 학생 수준과 목표에 맞는
             1:1 피아노 레슨
