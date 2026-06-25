@@ -377,26 +377,31 @@ body {
   transform-origin: center bottom;
 }
 
-/* 빌딩 씬 말풍선 (상시) */
+/* 빌딩 씬 말풍선 (상시 표시) */
 .bubble-floor {
   position: absolute;
   bottom: 108%;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  max-width: 160px;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
-  background: #f8fafc;
-  color: #0f172a;
+  background: #fffbeb;
+  color: #1e2a4a;
   font-size: 10px;
   font-weight: 700;
-  padding: 3px 7px;
-  border-radius: 9999px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(155, 35, 53, 0.25);
+  box-shadow: 0 4px 14px rgba(30, 42, 74, 0.25);
   z-index: 30;
   pointer-events: none;
-  animation: bubble-pop 4s ease-in-out;
+  animation: bubble-idle 2.8s ease-in-out infinite;
+}
+@keyframes bubble-idle {
+  0%, 100% { opacity: 1; transform: translate(-50%, 0); }
+  50% { opacity: 0.95; transform: translate(-50%, -3px); }
 }
 .bubble-floor::after {
   content: "";

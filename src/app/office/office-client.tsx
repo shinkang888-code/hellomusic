@@ -20,50 +20,12 @@ import { deptRealAvatarUrl } from "./resize-avatar";
 
 type EventItem = { id: number; ts: string; actor: string | null; message: string };
 
-const CHITCHAT = [
-  "오늘 연습곡 뭐예요? 🎹",
-  "콩쿠르 준비 화이팅!",
-  "Theory Room 이론 시험!",
-  "그랜드 스튜디오 예약 ✨",
-  "등·하원 알림 보냈어요 📱",
-  "체험레슨 상담 잡았어요",
-  "연습실 비었어요!",
-  "발표회 리허설~ 🎵",
-  "바이엘 다음 페이지!",
-  "원장님 부르셨대요",
-  "손가락 스트레칭 했어요?",
-  "레슨 10분 전! ⏰",
-];
-
-function chatFor(emp: Employee): string {
-  if (emp.status === "error") return "🚨 장애 대응 중!";
-  if (emp.current_task) return emp.current_task;
-  if (emp.status === "meeting") return "회의 중이에요 🗣";
-  if (emp.status === "review") return "검토 중입니다 🔍";
-  return CHITCHAT[emp.id % CHITCHAT.length];
-}
-
-// id 기반 결정적 워킹 파라미터
-function walkVars(id: number): React.CSSProperties {
-  const dx = ((id * 37) % 14) - 7; // -7~6 px
-  const dy = ((id * 53) % 10) - 5; // -5~4 px
-  const dur = 6 + ((id * 13) % 7); // 6~12s
-  const delay = (id * 7) % 5; // 0~4s
-  return {
-    "--wx": `${dx}px`,
-    "--wy": `${dy}px`,
-    "--wd": `${dur}s`,
-    "--wdelay": `${delay}s`,
-  } as React.CSSProperties;
-}
-
 export function OfficeClient() {
   const [data, setData] = useState<CompanyData | null>(null);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [selected, setSelected] = useState<Employee | null>(null);
   const [checking, setChecking] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [talking, setTalking] = useState<Set<number>>(new Set());
   const [view, setView] = useState<"building" | "grid">("building");
   const [chatOpen, setChatOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -87,23 +49,6 @@ export function OfficeClient() {
     const t = setInterval(load, 15000);
     return () => clearInterval(t);
   }, [load]);
-
-  // 캐릭터 말풍선: 3초마다 무작위 직원들이 말함
-  useEffect(() => {
-    if (!data) return;
-    const ids = data.employees.map((e) => e.id);
-    const rotate = () => {
-      const next = new Set<number>();
-      const count = Math.min(10, ids.length);
-      for (let i = 0; i < count; i++) {
-        next.add(ids[Math.floor(Math.random() * ids.length)]);
-      }
-      setTalking(next);
-    };
-    rotate();
-    const t = setInterval(rotate, 3200);
-    return () => clearInterval(t);
-  }, [data]);
 
   const byDept = useMemo(() => {
     if (!data) return new Map<string, Employee[]>();
@@ -277,7 +222,7 @@ export function OfficeClient() {
             rel="noopener noreferrer"
             className="rounded-lg bg-[#1e2a4a] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d3f6b]"
           >
-            🎼 그렌드
+            🎼 그랜드
           </a>
           <a
             href="https://blog.naver.com/hellomusic0104"
@@ -349,8 +294,8 @@ export function OfficeClient() {
             onSelect={setSelected}
           />
           <p className="mt-2 text-center text-xs text-muted">
-            각 구역 팀장·직원이 1층 평면도에서 실시간 활동합니다 · 🎹 학원상담으로
-            원장님에게 레슨·입학 문의를 남길 수 있어요
+            각 구역 캐릭터가 1층 평면도에서 돌아다니며 잡담합니다 · 🎹 학원상담 · 📋
+            학원정보
           </p>
           <div className="mt-4 rounded-xl border border-theme bg-card p-3">
             <h3 className="text-xs font-bold text-sub">🛰 실시간 활동</h3>
