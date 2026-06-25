@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 
 type LonexLogoProps = {
   size?: "sm" | "md" | "lg";
@@ -8,8 +8,8 @@ type LonexLogoProps = {
 
 const sizes = {
   sm: { img: 32, className: "size-8 rounded-md" },
-  md: { img: 72, className: "size-16 rounded-2xl ring-1 ring-slate-800 sm:size-20" },
-  lg: { img: 96, className: "size-24 rounded-2xl ring-1 ring-slate-800" },
+  md: { img: 72, className: "size-16 rounded-2xl ring-1 ring-theme sm:size-20" },
+  lg: { img: 96, className: "size-24 rounded-2xl ring-1 ring-theme" },
 };
 
 export function LonexLogo({
@@ -32,7 +32,7 @@ export function LonexLogo({
       {showText && (
         <span className={size === "sm" ? "text-lg font-bold" : "text-4xl font-bold tracking-tight sm:text-6xl"}>
           Lonex{" "}
-          {accent ? <span className="text-blue-400">{accent}</span> : null}
+          {accent ? <span className="text-accent">{accent}</span> : null}
         </span>
       )}
     </span>

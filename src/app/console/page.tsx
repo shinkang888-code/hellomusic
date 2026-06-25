@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function ConsolePage() {
   return (
-    <main className="flex-1 bg-slate-950 text-slate-100">
+    <main className="flex-1 bg-page text-main">
       <Nav active="console" />
       <ConsoleClient />
     </main>

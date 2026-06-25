@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { type Department } from "./types";
@@ -115,15 +115,15 @@ export function DeptProfileEditor({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm rounded-2xl border bg-slate-900 p-5 shadow-xl"
+        className="w-full max-w-sm rounded-2xl border bg-card p-5 shadow-xl"
         style={{ borderColor: department.color }}
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-base font-bold" style={{ color: department.color }}>
           {department.label} · 실무 담당 프로필
         </h3>
-        <p className="mt-1 text-xs text-slate-400">
-          AI 팀장 <span className="text-slate-300">{aiLeaderName}</span> 밑에
+        <p className="mt-1 text-xs text-sub">
+          AI 팀장 <span className="text-sub">{aiLeaderName}</span> 밑에
           실제 직원 정보를 등록합니다.
         </p>
 
@@ -131,7 +131,7 @@ export function DeptProfileEditor({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="group relative flex size-24 items-center justify-center overflow-hidden rounded-full bg-slate-800 ring-2 ring-slate-600 transition hover:ring-blue-400"
+            className="group relative flex size-24 items-center justify-center overflow-hidden rounded-full bg-elevated ring-2 ring-slate-600 transition hover:ring-blue-400"
           >
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -141,7 +141,7 @@ export function DeptProfileEditor({
                 className="size-full object-cover"
               />
             ) : (
-              <span className="text-3xl text-slate-500">👤</span>
+              <span className="text-3xl text-muted">👤</span>
             )}
             <span className="absolute inset-x-0 bottom-0 bg-black/50 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
               사진 변경
@@ -158,7 +158,7 @@ export function DeptProfileEditor({
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="rounded-lg bg-slate-800 px-3 py-1.5 text-slate-200 ring-1 ring-slate-700 hover:bg-slate-700"
+              className="rounded-lg bg-elevated px-3 py-1.5 text-main ring-1 ring-theme hover:bg-elevated-hover"
             >
               📷 사진 업로드
             </button>
@@ -172,19 +172,19 @@ export function DeptProfileEditor({
               </button>
             )}
           </div>
-          <p className="text-[10px] text-slate-500">
+          <p className="text-[10px] text-muted">
             자동으로 128×128 WebP로 리사이즈됩니다.
           </p>
         </div>
 
-        <label className="mt-4 block text-xs font-medium text-slate-400">
+        <label className="mt-4 block text-xs font-medium text-sub">
           실무 담당 이름
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="예: 홍길동 (실제 직원)"
             maxLength={40}
-            className="mt-1 w-full rounded-lg bg-slate-950 px-3 py-2 text-sm text-slate-100 ring-1 ring-slate-700 outline-none focus:ring-blue-500"
+            className="mt-1 w-full rounded-lg bg-page px-3 py-2 text-sm text-main ring-1 ring-theme outline-none focus:ring-blue-500"
           />
         </label>
 
@@ -202,7 +202,7 @@ export function DeptProfileEditor({
           </button>
           <button
             onClick={onClose}
-            className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-300 ring-1 ring-slate-700 hover:bg-slate-700"
+            className="rounded-lg bg-elevated px-4 py-2 text-sm text-sub ring-1 ring-theme hover:bg-elevated-hover"
           >
             취소
           </button>

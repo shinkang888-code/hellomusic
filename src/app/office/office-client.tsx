@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -179,7 +179,7 @@ export function OfficeClient() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center text-slate-500">
+      <div className="flex h-[60vh] items-center justify-center text-muted">
         회사 데이터를 불러오는 중…
       </div>
     );
@@ -196,7 +196,7 @@ export function OfficeClient() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       {/* 간판 히어로 */}
-      <div className="relative mb-6 overflow-hidden rounded-2xl ring-1 ring-slate-800">
+      <div className="relative mb-6 overflow-hidden rounded-2xl ring-1 ring-theme">
         <Image
           src="/brand/lonex-office-hero.png"
           alt="Lonex 라이브 오피스"
@@ -205,7 +205,7 @@ export function OfficeClient() {
           priority
           className="h-40 w-full object-cover sm:h-56"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-page)]/90 via-[var(--bg-page)]/40 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10">
           <div className="flex items-center gap-3">
             <Image
@@ -216,13 +216,13 @@ export function OfficeClient() {
               className="size-10 rounded-lg sm:size-12"
             />
             <span className="text-2xl font-bold tracking-tight sm:text-3xl">
-              로넥스 <span className="text-slate-400">· 라이브 오피스</span>
+              로넥스 <span className="text-sub">· 라이브 오피스</span>
             </span>
           </div>
           <p className="mt-2 max-w-md text-sm text-blue-200 sm:text-base">
             The Logical Nexus of Infinite Data.
           </p>
-          <p className="text-xs text-slate-400">무한한 데이터를 잇는 논리적 연결점.</p>
+          <p className="text-xs text-sub">무한한 데이터를 잇는 논리적 연결점.</p>
         </div>
       </div>
 
@@ -230,7 +230,7 @@ export function OfficeClient() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">🏢 lonex AI 컴퍼니 — 라이브 오피스</h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-sub">
             {data.stats.total}명의 AI 직원이 {data.stats.departments}개 부서에서
             실시간 근무 중 · 테두리 색이 사이트 상태를 나타냅니다
           </p>
@@ -241,13 +241,13 @@ export function OfficeClient() {
             <Stat label="회의" value={data.stats.meeting} dot="bg-blue-400" />
             <Stat label="대기" value={data.stats.idle} dot="bg-slate-500" />
           </div>
-          <div className="flex overflow-hidden rounded-lg ring-1 ring-slate-700">
+          <div className="flex overflow-hidden rounded-lg ring-1 ring-theme">
             <button
               onClick={() => setView("building")}
               className={`px-3 py-2 text-xs font-semibold transition ${
                 view === "building"
                   ? "bg-blue-500 text-white"
-                  : "bg-slate-900 text-slate-300 hover:bg-slate-800"
+                  : "bg-card text-sub hover:bg-elevated-hover"
               }`}
             >
               🏙 빌딩 뷰
@@ -257,7 +257,7 @@ export function OfficeClient() {
               className={`px-3 py-2 text-xs font-semibold transition ${
                 view === "grid"
                   ? "bg-blue-500 text-white"
-                  : "bg-slate-900 text-slate-300 hover:bg-slate-800"
+                  : "bg-card text-sub hover:bg-elevated-hover"
               }`}
             >
               🗂 부서 뷰
@@ -287,7 +287,7 @@ export function OfficeClient() {
             onClick={runControlTower}
             disabled={checking}
             title="가용성만 빠르게 점검 (전체 보안 점검은 관제탑에서)"
-            className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 ring-1 ring-slate-700 transition hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-lg bg-elevated px-3 py-2 text-xs font-semibold text-sub ring-1 ring-theme transition hover:bg-elevated-hover disabled:opacity-50"
           >
             {checking ? "점검 중…" : "빠른 점검"}
           </button>
@@ -304,7 +304,7 @@ export function OfficeClient() {
                 ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20"
                 : s.status === "down"
                   ? "bg-rose-500/10 text-rose-300 ring-rose-500/20 anim-alert"
-                  : "bg-slate-700/30 text-slate-400 ring-slate-600"
+                  : "bg-elevated text-sub ring-theme"
             }`}
           >
             <span
@@ -330,16 +330,16 @@ export function OfficeClient() {
             employees={data.employees}
             onSelect={setSelected}
           />
-          <p className="mt-2 text-center text-xs text-slate-500">
+          <p className="mt-2 text-center text-xs text-muted">
             각 층 부서 대표가 실시간으로 걸어다니며 잡담합니다 · 캐릭터를 클릭하면
             업무를 지시할 수 있어요
           </p>
-          <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
-            <h3 className="text-xs font-bold text-slate-300">🛰 실시간 활동</h3>
+          <div className="mt-4 rounded-xl border border-theme bg-card p-3">
+            <h3 className="text-xs font-bold text-sub">🛰 실시간 활동</h3>
             <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
               {events.slice(0, 8).map((e) => (
-                <li key={e.id} className="text-slate-500">
-                  <span className="text-slate-300">{e.actor ?? "시스템"}</span> ·{" "}
+                <li key={e.id} className="text-muted">
+                  <span className="text-sub">{e.actor ?? "시스템"}</span> ·{" "}
                   {e.message}
                 </li>
               ))}
@@ -361,7 +361,7 @@ export function OfficeClient() {
             return (
               <div
                 key={dept.slug}
-                className={`self-start rounded-xl border-2 bg-slate-900/40 p-3 transition ${
+                className={`self-start rounded-xl border-2 bg-card p-3 transition ${
                   isDown ? "anim-alert" : ""
                 }`}
                 style={{ borderColor: isDown ? "#ef4444" : dept.color }}
@@ -373,10 +373,10 @@ export function OfficeClient() {
                   >
                     {dept.label}
                   </h3>
-                  <span className="text-xs text-slate-500">{emps.length}명</span>
+                  <span className="text-xs text-muted">{emps.length}명</span>
                 </div>
                 {emps.length === 0 ? (
-                  <p className="text-xs text-slate-600">배정된 팀원이 없습니다.</p>
+                  <p className="text-xs text-muted">배정된 팀원이 없습니다.</p>
                 ) : (
                   <div className="space-y-2.5">
                     {/* AI 팀장 (캐릭터) */}
@@ -384,8 +384,8 @@ export function OfficeClient() {
                       const aiLeader = emps[0];
                       const meta = STATUS_META[aiLeader.status];
                       return (
-                        <div className="flex items-center gap-2 rounded-lg bg-slate-950/40 px-2 py-1.5">
-                          <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-800 ring-2"
+                        <div className="flex items-center gap-2 rounded-lg bg-card px-2 py-1.5">
+                          <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-elevated ring-2"
                             style={{ borderColor: meta.ring }}>
                             <Image
                               src={avatarFor(dept.slug)}
@@ -403,10 +403,10 @@ export function OfficeClient() {
                             />
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className="text-[10px] font-semibold text-slate-500">
+                            <p className="text-[10px] font-semibold text-muted">
                               🤖 AI 팀장
                             </p>
-                            <p className="truncate text-xs text-slate-300">
+                            <p className="truncate text-xs text-sub">
                               {aiLeader.name}
                             </p>
                           </div>
@@ -419,8 +419,8 @@ export function OfficeClient() {
                     })()}
 
                     {/* 실무 담당 (실제 직원) */}
-                    <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-700/80 bg-slate-950/20 px-2 py-1.5">
-                      <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-800 ring-2 ring-blue-500/40">
+                    <div className="flex items-center gap-2 rounded-lg border border-dashed border-theme/80 bg-card px-2 py-1.5">
+                      <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-elevated ring-2 ring-blue-500/40">
                         {dept.has_real_avatar ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -432,14 +432,14 @@ export function OfficeClient() {
                             className="size-full object-cover"
                           />
                         ) : (
-                          <span className="text-lg text-slate-500">👤</span>
+                          <span className="text-lg text-muted">👤</span>
                         )}
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-semibold text-blue-300/90">
                           👤 실무 담당
                         </p>
-                        <p className="truncate text-xs text-slate-200">
+                        <p className="truncate text-xs text-main">
                           {dept.real_member_name || "미등록"}
                         </p>
                       </div>
@@ -459,18 +459,18 @@ export function OfficeClient() {
         </div>
 
         {/* 우측: 실시간 이벤트 로그 */}
-        <aside className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+        <aside className="rounded-xl border border-theme bg-card p-4">
           <h3 className="flex items-center gap-2 text-sm font-bold">
             🛰 실시간 활동
           </h3>
           <ul className="mt-3 space-y-2 text-xs">
             {events.length === 0 && (
-              <li className="text-slate-500">이벤트가 없습니다.</li>
+              <li className="text-muted">이벤트가 없습니다.</li>
             )}
             {events.map((e) => (
-              <li key={e.id} className="anim-bubble border-l-2 border-slate-700 pl-2">
-                <span className="text-slate-300">{e.actor ?? "시스템"}</span>
-                <span className="text-slate-500"> · {e.message}</span>
+              <li key={e.id} className="anim-bubble border-l-2 border-theme pl-2">
+                <span className="text-sub">{e.actor ?? "시스템"}</span>
+                <span className="text-muted"> · {e.message}</span>
               </li>
             ))}
           </ul>
@@ -529,9 +529,9 @@ function Stat({
   dot: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900/60 px-2.5 py-1.5 ring-1 ring-slate-800">
+    <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-2.5 py-1.5 ring-1 ring-theme">
       <span className={`size-1.5 rounded-full ${dot}`} />
-      {label} <b className="text-slate-100">{value}</b>
+      {label} <b className="text-main">{value}</b>
     </span>
   );
 }
@@ -567,13 +567,13 @@ function EmployeeModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl border bg-slate-900 p-6 anim-bubble"
+        className="w-full max-w-md rounded-2xl border bg-card p-6 anim-bubble"
         style={{ borderColor: deptColor }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4">
           <div
-            className="relative flex size-16 items-center justify-center overflow-hidden rounded-full bg-slate-800 ring-2"
+            className="relative flex size-16 items-center justify-center overflow-hidden rounded-full bg-elevated ring-2"
             style={{ borderColor: deptColor }}
           >
             <Image
@@ -594,7 +594,7 @@ function EmployeeModal({
             <p className="text-xs" style={{ color: deptColor }}>
               {deptLabel}
             </p>
-            <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-2 py-0.5 text-xs">
+            <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-elevated px-2 py-0.5 text-xs">
               <span
                 className={`size-1.5 rounded-full ${STATUS_META[employee.status].dot}`}
               />
@@ -604,19 +604,19 @@ function EmployeeModal({
         </div>
 
         {employee.vibe && (
-          <p className="mt-4 rounded-lg bg-slate-800/60 p-3 text-sm italic text-slate-300">
+          <p className="mt-4 rounded-lg bg-elevated p-3 text-sm italic text-sub">
             “{employee.vibe}”
           </p>
         )}
         {employee.description && (
-          <p className="mt-3 max-h-28 overflow-y-auto text-xs leading-relaxed text-slate-400">
+          <p className="mt-3 max-h-28 overflow-y-auto text-xs leading-relaxed text-sub">
             {employee.description}
           </p>
         )}
 
         {/* 업무 지시 */}
         <div className="mt-4">
-          <label className="text-xs font-medium text-slate-400">
+          <label className="text-xs font-medium text-sub">
             업무 지시
           </label>
           <textarea
@@ -624,7 +624,7 @@ function EmployeeModal({
             onChange={(e) => setTask(e.target.value)}
             rows={2}
             placeholder="이 직원에게 지시할 업무를 입력하세요…"
-            className="mt-1 w-full rounded-lg bg-slate-950 px-3 py-2 text-sm text-slate-100 ring-1 ring-slate-700 outline-none focus:ring-blue-500"
+            className="mt-1 w-full rounded-lg bg-page px-3 py-2 text-sm text-main ring-1 ring-theme outline-none focus:ring-blue-500"
           />
         </div>
 
@@ -638,7 +638,7 @@ function EmployeeModal({
                 className={`rounded-lg px-2.5 py-1 text-xs ring-1 transition ${
                   employee.status === st
                     ? "bg-blue-500/20 text-blue-300 ring-blue-500/40"
-                    : "bg-slate-800 text-slate-300 ring-slate-700 hover:bg-slate-700"
+                    : "bg-elevated text-sub ring-theme hover:bg-elevated-hover"
                 }`}
               >
                 {STATUS_META[st].label}
@@ -657,7 +657,7 @@ function EmployeeModal({
           </button>
           <button
             onClick={onClose}
-            className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-300 ring-1 ring-slate-700 hover:bg-slate-700"
+            className="rounded-lg bg-elevated px-4 py-2 text-sm text-sub ring-1 ring-theme hover:bg-elevated-hover"
           >
             닫기
           </button>

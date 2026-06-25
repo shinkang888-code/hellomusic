@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -93,7 +93,7 @@ export function ConsoleClient() {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center text-slate-500">
+      <div className="flex h-[60vh] items-center justify-center text-muted">
         불러오는 중…
       </div>
     );
@@ -109,7 +109,7 @@ export function ConsoleClient() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       <h1 className="text-2xl font-bold">🎛 직원 관리 콘솔</h1>
-      <p className="mt-1 text-sm text-slate-400">
+      <p className="mt-1 text-sm text-sub">
         총 {data.stats.total}명 · 부서 {data.stats.departments}개 · 근무{" "}
         {data.stats.working} / 회의 {data.stats.meeting} / 대기 {data.stats.idle}
       </p>
@@ -121,7 +121,7 @@ export function ConsoleClient() {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="rounded-lg bg-slate-900 px-3 py-2 text-sm ring-1 ring-slate-700"
+              className="rounded-lg bg-card px-3 py-2 text-sm ring-1 ring-theme"
             >
               <option value="all">전체 부서</option>
               {data.departments.map((d) => (
@@ -134,14 +134,14 @@ export function ConsoleClient() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="이름 검색…"
-              className="flex-1 rounded-lg bg-slate-900 px-3 py-2 text-sm ring-1 ring-slate-700 outline-none focus:ring-blue-500"
+              className="flex-1 rounded-lg bg-card px-3 py-2 text-sm ring-1 ring-theme outline-none focus:ring-blue-500"
             />
-            <span className="text-xs text-slate-500">{filtered.length}명</span>
+            <span className="text-xs text-muted">{filtered.length}명</span>
           </div>
 
-          <div className="mt-3 max-h-[60vh] overflow-y-auto rounded-xl border border-slate-800">
+          <div className="mt-3 max-h-[60vh] overflow-y-auto rounded-xl border border-theme">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-900 text-left text-xs text-slate-400">
+              <thead className="sticky top-0 bg-card text-left text-xs text-sub">
                 <tr>
                   <th className="px-3 py-2">직원</th>
                   <th className="px-3 py-2">부서</th>
@@ -170,11 +170,11 @@ export function ConsoleClient() {
         {/* 우측 사이드 */}
         <aside>
           {/* AI 답변 설정 */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+          <div className="rounded-xl border border-theme bg-card p-3">
             <h2 className="flex items-center gap-1.5 text-sm font-bold">
               🤖 업무지시방 AI (Gemini)
             </h2>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-muted">
               키를 입력하면 업무지시방에서 팀장들이 Gemini로 실제 답변합니다.
               미입력 시 기본(비서팀) 응답으로 동작합니다.
             </p>
@@ -184,7 +184,7 @@ export function ConsoleClient() {
                 value={geminiKey}
                 onChange={(e) => setGeminiKey(e.target.value)}
                 placeholder="Gemini API 키 붙여넣기"
-                className="flex-1 rounded-lg bg-slate-950 px-3 py-2 text-sm ring-1 ring-slate-700 outline-none focus:ring-blue-500"
+                className="flex-1 rounded-lg bg-page px-3 py-2 text-sm ring-1 ring-theme outline-none focus:ring-blue-500"
               />
               <button
                 onClick={saveGeminiKey}
@@ -194,7 +194,7 @@ export function ConsoleClient() {
               </button>
             </div>
             <div className="mt-1.5 flex items-center justify-between text-xs">
-              <span className={keySaved ? "text-emerald-400" : "text-slate-500"}>
+              <span className={keySaved ? "text-emerald-400" : "text-muted"}>
                 {keySaved
                   ? "✓ 저장됨 (이 브라우저에만 저장)"
                   : geminiKey
@@ -204,7 +204,7 @@ export function ConsoleClient() {
               {geminiKey && (
                 <button
                   onClick={clearGeminiKey}
-                  className="text-slate-500 underline hover:text-slate-300"
+                  className="text-muted underline hover:text-main"
                 >
                   삭제
                 </button>
@@ -219,7 +219,7 @@ export function ConsoleClient() {
               onChange={(e) => setNewTask(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addTask()}
               placeholder="새 업무…"
-              className="flex-1 rounded-lg bg-slate-900 px-3 py-2 text-sm ring-1 ring-slate-700 outline-none focus:ring-blue-500"
+              className="flex-1 rounded-lg bg-card px-3 py-2 text-sm ring-1 ring-theme outline-none focus:ring-blue-500"
             />
             <button
               onClick={addTask}
@@ -230,21 +230,21 @@ export function ConsoleClient() {
           </div>
           <ul className="mt-3 max-h-[55vh] space-y-2 overflow-y-auto">
             {tasks.length === 0 && (
-              <li className="text-xs text-slate-500">업무가 없습니다.</li>
+              <li className="text-xs text-muted">업무가 없습니다.</li>
             )}
             {tasks.map((t) => (
               <li
                 key={t.id}
-                className={`rounded-lg border-l-2 bg-slate-900/60 p-2.5 text-xs ${
+                className={`rounded-lg border-l-2 bg-card p-2.5 text-xs ${
                   t.source === "control-tower"
                     ? "border-rose-500"
                     : "border-slate-600"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-200">{t.title}</span>
+                  <span className="text-main">{t.title}</span>
                 </div>
-                <div className="mt-1 text-slate-500">
+                <div className="mt-1 text-muted">
                   {t.source === "control-tower" ? "🛰 관제탑" : "👤 수동"} ·{" "}
                   {t.status}
                 </div>
@@ -268,10 +268,10 @@ function EmployeeRow({
 }) {
   const meta = STATUS_META[emp.status];
   return (
-    <tr className="border-t border-slate-800 hover:bg-slate-900/40">
+    <tr className="border-t border-theme hover:bg-card">
       <td className="px-3 py-2">
         <div className="flex items-center gap-2">
-          <span className="relative inline-flex size-8 shrink-0 overflow-hidden rounded-full bg-slate-800 ring-1 ring-slate-700">
+          <span className="relative inline-flex size-8 shrink-0 overflow-hidden rounded-full bg-elevated ring-1 ring-theme">
             <Image
               src={avatarFor(emp.department_slug)}
               alt={emp.name}
@@ -281,14 +281,14 @@ function EmployeeRow({
             />
           </span>
           <div>
-            <div className="font-medium text-slate-100">{emp.name}</div>
+            <div className="font-medium text-main">{emp.name}</div>
             {emp.current_task && (
-              <div className="text-xs text-slate-500">{emp.current_task}</div>
+              <div className="text-xs text-muted">{emp.current_task}</div>
             )}
           </div>
         </div>
       </td>
-      <td className="px-3 py-2 text-slate-400">{deptLabel}</td>
+      <td className="px-3 py-2 text-sub">{deptLabel}</td>
       <td className="px-3 py-2">
         <span className="inline-flex items-center gap-1.5 text-xs">
           <span className={`size-1.5 rounded-full ${meta.dot}`} />
@@ -304,7 +304,7 @@ function EmployeeRow({
               className={`rounded px-1.5 py-0.5 text-[10px] ring-1 transition ${
                 emp.status === s
                   ? "bg-blue-500/20 text-blue-300 ring-blue-500/40"
-                  : "bg-slate-800 text-slate-400 ring-slate-700 hover:bg-slate-700"
+                  : "bg-elevated text-sub ring-theme hover:bg-elevated-hover"
               }`}
             >
               {STATUS_META[s].label}

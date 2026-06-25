@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -21,7 +21,7 @@ export default function ContactPage() {
         <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
           문의 <span className="text-blue-400">하기</span>
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-slate-400">
+        <p className="mt-4 max-w-2xl text-lg text-sub">
           협력, 데모, 파트너십 문의를 남겨주세요. 정식 출시 알림은 lonex AI
           대시보드 대기자 명단을 이용해 주세요.
         </p>
@@ -31,14 +31,14 @@ export default function ContactPage() {
         <div className="grid gap-8 lg:grid-cols-2">
           <form
             onSubmit={handleSubmit}
-            className="rounded-xl bg-slate-900/60 p-6 ring-1 ring-slate-800"
+            className="rounded-xl bg-card p-6 ring-1 ring-theme"
           >
             <h2 className="text-lg font-semibold">회사 문의</h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-sub">
               이메일과 메시지를 남겨주시면 검토 후 연락드립니다.
             </p>
 
-            <label className="mt-6 block text-sm text-slate-400">
+            <label className="mt-6 block text-sm text-sub">
               이메일
               <input
                 type="email"
@@ -46,11 +46,11 @@ export default function ContactPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1.5 w-full rounded-lg border border-theme bg-page px-4 py-2.5 text-main placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </label>
 
-            <label className="mt-4 block text-sm text-slate-400">
+            <label className="mt-4 block text-sm text-sub">
               메시지
               <textarea
                 required
@@ -58,7 +58,7 @@ export default function ContactPage() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="협력·데모·파트너십 문의 내용"
-                className="mt-1.5 w-full resize-none rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-slate-100 placeholder:text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1.5 w-full resize-none rounded-lg border border-theme bg-page px-4 py-2.5 text-main placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </label>
 
@@ -77,9 +77,9 @@ export default function ContactPage() {
           </form>
 
           <div className="space-y-4">
-            <div className="rounded-xl bg-slate-900/60 p-6 ring-1 ring-slate-800">
+            <div className="rounded-xl bg-card p-6 ring-1 ring-theme">
               <h2 className="text-lg font-semibold">대기자 명단 등록</h2>
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-sub">
                 lonex AI 정식 출시 소식은 Neon DB에 저장되는 대시보드 대기자
                 명단을 이용하세요.
               </p>
@@ -87,15 +87,15 @@ export default function ContactPage() {
                 href="https://lonex-ai.vercel.app"
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 inline-block rounded-lg bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-200 ring-1 ring-slate-700 transition hover:bg-slate-700"
+                className="mt-4 inline-block rounded-lg bg-elevated px-5 py-2.5 text-sm font-semibold text-main ring-1 ring-theme transition hover:bg-elevated-hover"
               >
                 lonex AI 대시보드 →
               </a>
             </div>
 
-            <div className="rounded-xl bg-slate-900/60 p-6 ring-1 ring-slate-800">
+            <div className="rounded-xl bg-card p-6 ring-1 ring-theme">
               <h2 className="text-lg font-semibold">바로가기</h2>
-              <ul className="mt-3 space-y-2 text-sm text-slate-400">
+              <ul className="mt-3 space-y-2 text-sm text-sub">
                 <li>
                   <a
                     href="https://lonex-ai.vercel.app/office"

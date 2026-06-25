@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function ControlTowerPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-page text-main">
       <Nav active="control-tower" />
       <ControlTowerClient />
     </div>

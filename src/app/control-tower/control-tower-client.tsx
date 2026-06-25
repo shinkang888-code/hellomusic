@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -118,7 +118,7 @@ export function ControlTowerClient() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
       {/* 히어로 */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950/40 p-6 sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl border border-theme bg-hero p-6 sm:p-8">
         <div className="absolute -right-8 -top-8 size-40 rounded-full bg-blue-500/10 blur-3xl" />
         <div className="relative flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -128,15 +128,15 @@ export function ControlTowerClient() {
             <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
               🛰 통합 보안 관제센터
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-400">
-              기존 <strong className="text-slate-300">관제탑 사이트 점검</strong>은
+            <p className="mt-2 max-w-2xl text-sm text-sub">
+              기존 <strong className="text-sub">관제탑 사이트 점검</strong>은
               등록 URL에 HTTP 요청만 보내 up/down을 표시하던 단순 헬스체크였습니다.
               이제 <strong className="text-blue-300">LogShield</strong> 엔진(SecEBL,
               TrafficGPT, MITRE ATT&CK, UEBA)과 연동해{" "}
-              <strong className="text-slate-300">가용성 + 웹 보안 헤더 + 행동 분석</strong>
+              <strong className="text-sub">가용성 + 웹 보안 헤더 + 행동 분석</strong>
               을 함께 점검합니다.
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-muted">
               소스:{" "}
               <a
                 href="https://github.com/shinkang888-code/logshield"
@@ -158,7 +158,7 @@ export function ControlTowerClient() {
             </button>
             <Link
               href="/office"
-              className="text-center text-xs text-slate-500 hover:text-slate-300"
+              className="text-center text-xs text-muted hover:text-main"
             >
               ← AI 오피스로 돌아가기
             </Link>
@@ -178,9 +178,9 @@ export function ControlTowerClient() {
         ].map((k) => (
           <div
             key={k.label}
-            className="rounded-xl border border-slate-800 bg-slate-900/50 px-3 py-3"
+            className="rounded-xl border border-theme bg-card px-3 py-3"
           >
-            <p className="text-[10px] text-slate-500">{k.label}</p>
+            <p className="text-[10px] text-muted">{k.label}</p>
             <p className={`mt-0.5 text-xl font-bold tabular-nums ${k.color}`}>
               {k.value}
             </p>
@@ -189,11 +189,11 @@ export function ControlTowerClient() {
       </div>
 
       {/* 사이트 점검 결과 */}
-      <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+      <section className="mt-6 rounded-xl border border-theme bg-card p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-bold">🌐 회사 사이트 보안 점검</h2>
           {checkData?.ok && (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-sub">
               {checkData.checked}개 점검 · 장애 {checkData.down} · 고위험{" "}
               {checkData.highRisk}
             </span>
@@ -206,7 +206,7 @@ export function ControlTowerClient() {
             return (
               <div
                 key={s.id}
-                className="rounded-lg border border-slate-800 bg-slate-950/60"
+                className="rounded-lg border border-theme bg-card"
               >
                 <button
                   type="button"
@@ -225,10 +225,10 @@ export function ControlTowerClient() {
                     }`}
                   />
                   <span className="min-w-[100px] text-sm font-medium">{s.name}</span>
-                  <span className="flex-1 truncate text-xs text-slate-500">
+                  <span className="flex-1 truncate text-xs text-muted">
                     {s.url}
                   </span>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-sub">
                     HTTP {r?.code ?? s.http_code ?? "—"}
                   </span>
                   {r && (
@@ -240,12 +240,12 @@ export function ControlTowerClient() {
                       </span>
                     </>
                   )}
-                  <span className="text-xs text-slate-600">
+                  <span className="text-xs text-muted">
                     {expanded === s.url ? "▲" : "▼"} LogShield
                   </span>
                 </button>
                 {expanded === s.url && r && r.findings.length > 0 && (
-                  <div className="border-t border-slate-800 px-3 py-2">
+                  <div className="border-t border-theme px-3 py-2">
                     <ul className="space-y-1.5">
                       {r.findings.map((f) => (
                         <li
@@ -255,11 +255,11 @@ export function ControlTowerClient() {
                           <span
                             className={`mt-1 size-1.5 shrink-0 rounded-full ${sevDot[f.severity] ?? sevDot.info}`}
                           />
-                          <span className="font-medium text-slate-200">
+                          <span className="font-medium text-main">
                             {f.title}
                           </span>
                           {f.mitre && (
-                            <span className="rounded bg-slate-800 px-1 font-mono text-[10px] text-purple-300">
+                            <span className="rounded bg-elevated px-1 font-mono text-[10px] text-purple-300">
                               {f.mitre}
                             </span>
                           )}
@@ -268,7 +268,7 @@ export function ControlTowerClient() {
                               {f.engine}
                             </span>
                           )}
-                          <span className="w-full text-slate-500">{f.detail}</span>
+                          <span className="w-full text-muted">{f.detail}</span>
                         </li>
                       ))}
                     </ul>
@@ -282,17 +282,17 @@ export function ControlTowerClient() {
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         {/* LogShield 혁신 기능 */}
-        <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+        <section className="rounded-xl border border-theme bg-card p-4">
           <h2 className="mb-3 text-sm font-bold">🔐 Lonex LogShield 핵심 기능</h2>
           <div className="grid gap-2 sm:grid-cols-2">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="rounded-lg border border-slate-800 bg-slate-950/50 p-3"
+                className="rounded-lg border border-theme bg-page/50 p-3"
               >
                 <p className="text-lg">{f.icon}</p>
-                <p className="mt-1 text-xs font-bold text-slate-200">{f.title}</p>
-                <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                <p className="mt-1 text-xs font-bold text-main">{f.title}</p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-muted">
                   {f.desc}
                 </p>
               </div>
@@ -301,17 +301,17 @@ export function ControlTowerClient() {
         </section>
 
         {/* MITRE ATT&CK */}
-        <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+        <section className="rounded-xl border border-theme bg-card p-4">
           <h2 className="mb-3 text-sm font-bold">🎯 MITRE ATT&CK 탐지 (데모)</h2>
           <div className="space-y-2">
             {MITRE_TECHNIQUES.slice(0, 6).map((m) => (
               <div key={m.id} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-mono text-purple-300">{m.id}</span>
-                  <span className="text-slate-500">{m.tactic}</span>
+                  <span className="text-muted">{m.tactic}</span>
                 </div>
-                <p className="text-[11px] text-slate-400">{m.name}</p>
-                <div className="h-1 overflow-hidden rounded-full bg-slate-800">
+                <p className="text-[11px] text-sub">{m.name}</p>
+                <div className="h-1 overflow-hidden rounded-full bg-elevated">
                   <div
                     className="h-full rounded-full bg-red-500/70"
                     style={{
@@ -327,7 +327,7 @@ export function ControlTowerClient() {
 
       {/* 24h 트렌드 + SOC 피드 */}
       <div className="mt-6 grid gap-4 lg:grid-cols-5">
-        <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 lg:col-span-2">
+        <section className="rounded-xl border border-theme bg-card p-4 lg:col-span-2">
           <h2 className="mb-3 text-sm font-bold">📈 24시간 이벤트 (데모)</h2>
           <div className="flex h-32 items-end gap-0.5">
             {hourlyTrend.slice(-12).map((h) => (
@@ -347,7 +347,7 @@ export function ControlTowerClient() {
               </div>
             ))}
           </div>
-          <div className="mt-2 flex gap-3 text-[10px] text-slate-500">
+          <div className="mt-2 flex gap-3 text-[10px] text-muted">
             <span className="flex items-center gap-1">
               <span className="size-2 rounded-sm bg-rose-500/60" /> 차단
             </span>
@@ -357,7 +357,7 @@ export function ControlTowerClient() {
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 lg:col-span-3">
+        <section className="rounded-xl border border-theme bg-card p-4 lg:col-span-3">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-bold">
               SOC 실시간 피드
@@ -376,32 +376,32 @@ export function ControlTowerClient() {
             {events.slice(0, 8).map((e) => (
               <div
                 key={e.id}
-                className="flex flex-wrap items-center gap-2 rounded-lg px-2 py-1.5 text-xs hover:bg-slate-800/40"
+                className="flex flex-wrap items-center gap-2 rounded-lg px-2 py-1.5 text-xs hover:bg-elevated"
               >
-                <span className="tabular-nums text-slate-500">
+                <span className="tabular-nums text-muted">
                   {format(e.time, "HH:mm:ss")}
                 </span>
-                <span className="font-medium text-slate-300">{e.user}</span>
-                <span className="rounded bg-slate-800 px-1 text-[10px]">
+                <span className="font-medium text-sub">{e.user}</span>
+                <span className="rounded bg-elevated px-1 text-[10px]">
                   {e.type}
                 </span>
                 <span
                   className={
                     e.action.includes("차단") || e.action.includes("탐지")
                       ? "text-rose-400"
-                      : "text-slate-400"
+                      : "text-sub"
                   }
                 >
                   {e.action}
                 </span>
-                <span className="flex-1 truncate text-slate-500">{e.detail}</span>
+                <span className="flex-1 truncate text-muted">{e.detail}</span>
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${
                     e.severity === "critical"
                       ? "bg-rose-500/20 text-rose-300"
                       : e.severity === "high"
                         ? "bg-orange-500/20 text-orange-300"
-                        : "bg-slate-700 text-slate-400"
+                        : "bg-slate-700 text-sub"
                   }`}
                 >
                   {e.severity}

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { SectionBadge } from "@/components/ui/SectionBadge";
 
@@ -79,7 +79,7 @@ export default function ServicesPage() {
         <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
           사업 <span className="text-blue-400">영역</span>
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-slate-400">
+        <p className="mt-4 max-w-2xl text-lg text-sub">
           Lonex AI는 특허·법률 AI부터 운영 대시보드까지, 데이터와 모델을
           연결하는 end-to-end 솔루션을 제공합니다.
         </p>
@@ -90,17 +90,17 @@ export default function ServicesPage() {
           {services.map((service) => (
             <div
               key={service.title}
-              className="group rounded-xl bg-slate-900/60 p-5 ring-1 ring-slate-800 transition hover:ring-blue-500/50"
+              className="group rounded-xl bg-card p-5 ring-1 ring-theme transition hover:ring-blue-500/50"
             >
               <span
                 className={`rounded-md px-2 py-0.5 text-xs font-medium ring-1 ${service.categoryClass}`}
               >
                 {service.category}
               </span>
-              <h3 className="mt-3 font-semibold text-slate-100 group-hover:text-blue-300">
+              <h3 className="mt-3 font-semibold text-main group-hover:text-blue-300">
                 {service.title}
               </h3>
-              <ul className="mt-3 space-y-1.5 text-sm text-slate-400">
+              <ul className="mt-3 space-y-1.5 text-sm text-sub">
                 {service.items.map((item) => (
                   <li key={item} className="flex gap-2">
                     <span className="text-blue-500">·</span>
@@ -120,9 +120,9 @@ export default function ServicesPage() {
           ))}
         </div>
 
-        <div className="mt-12 rounded-xl bg-slate-900/60 p-6 ring-1 ring-slate-800">
+        <div className="mt-12 rounded-xl bg-card p-6 ring-1 ring-theme">
           <h3 className="text-lg font-semibold">라이브 데모</h3>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-sub">
             lonex-ai.vercel.app에서 모델 카탈로그, AI 오피스, 관리 콘솔을
             직접 확인할 수 있습니다.
           </p>
@@ -137,7 +137,7 @@ export default function ServicesPage() {
             </a>
             <Link
               href="/contact"
-              className="rounded-lg bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-200 ring-1 ring-slate-700 transition hover:bg-slate-700"
+              className="rounded-lg bg-elevated px-5 py-2.5 text-sm font-semibold text-main ring-1 ring-theme transition hover:bg-elevated-hover"
             >
               문의하기
             </Link>

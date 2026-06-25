@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -45,7 +45,7 @@ export function WaitlistForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@example.com"
-        className="flex-1 rounded-lg bg-slate-950/80 px-4 py-2.5 text-sm text-slate-100 ring-1 ring-slate-700 outline-none focus:ring-blue-500"
+        className="flex-1 rounded-lg bg-page/80 px-4 py-2.5 text-sm text-main ring-1 ring-theme outline-none focus:ring-blue-500"
       />
       <button
         type="submit"
