@@ -302,15 +302,15 @@ export function OfficeClient() {
           view === "grid" ? "grid" : "hidden"
         }`}
       >
-        {/* 부서별 룸 */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {/* 부서별 룸 — 카드는 내용 높이에 맞춰 자동으로 늘었다 줄어듦 */}
+        <div className="grid auto-rows-min content-start items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {data.departments.map((dept) => {
             const emps = byDept.get(dept.slug) ?? [];
             const isDown = downDepts.has(dept.slug);
             return (
               <div
                 key={dept.slug}
-                className={`rounded-xl border-2 bg-slate-900/40 p-3 transition ${
+                className={`self-start rounded-xl border-2 bg-slate-900/40 p-3 transition ${
                   isDown ? "anim-alert" : ""
                 }`}
                 style={{ borderColor: isDown ? "#ef4444" : dept.color }}
@@ -322,10 +322,13 @@ export function OfficeClient() {
                   >
                     {dept.label}
                   </h3>
-                  <span className="text-xs text-slate-500">대표 1명</span>
+                  <span className="text-xs text-slate-500">{emps.length}명</span>
                 </div>
+                {emps.length === 0 ? (
+                  <p className="text-xs text-slate-600">배정된 팀원이 없습니다.</p>
+                ) : (
                 <div className="flex flex-wrap gap-1.5">
-                  {emps.slice(0, 1).map((emp) => {
+                  {emps.map((emp) => {
                     const meta = STATUS_META[emp.status];
                     return (
                       <div
@@ -383,6 +386,7 @@ export function OfficeClient() {
                     );
                   })}
                 </div>
+                )}
               </div>
             );
           })}
