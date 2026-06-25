@@ -546,6 +546,116 @@ body {
   border-width: 6px;
 }
 
+/* ===== HELLO 이소메트릭 평면도 ===== */
+.hello-floor-frame {
+  position: relative;
+  background: linear-gradient(180deg, #faf8f4 0%, #f5f0e8 100%);
+  padding: 4px;
+  border-radius: 0 0 1rem 1rem;
+}
+
+.hello-iso-floor-img {
+  animation: hello-iso-breathe 8s ease-in-out infinite;
+}
+
+@keyframes hello-iso-breathe {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.03); }
+}
+
+.hello-hub-pulse {
+  animation: hello-hub-pulse 4s ease-in-out infinite;
+}
+
+@keyframes hello-hub-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+
+.hello-iso-sparkle {
+  animation: hello-iso-sparkle 3s ease-in-out infinite;
+}
+
+@keyframes hello-iso-sparkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.hello-iso-room-label {
+  fill: #c9a962;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.hello-iso-banner {
+  animation: hello-banner-in 0.6s ease-out both;
+}
+
+@keyframes hello-banner-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* chibi: 몸은 고정, 머리·팔만 미세 동작 (transform-origin 하단 중심) */
+.anim-chibi-idle {
+  animation: chibi-idle var(--idle-dur, 4s) ease-in-out infinite;
+  animation-delay: var(--idle-delay, 0s);
+  transform-origin: 50% 92%;
+  display: inline-block;
+}
+
+@keyframes chibi-idle {
+  0%, 100% { transform: rotate(-1deg) translateY(0); }
+  50% { transform: rotate(1deg) translateY(-2px); }
+}
+
+.anim-chibi-head {
+  animation: chibi-head var(--idle-dur, 3.8s) ease-in-out infinite;
+  animation-delay: var(--idle-delay, 0s);
+  transform-origin: 50% 88%;
+  display: inline-block;
+}
+
+@keyframes chibi-head {
+  0%, 100% { transform: rotate(-2.5deg); }
+  25% { transform: rotate(0deg); }
+  75% { transform: rotate(2.5deg); }
+}
+
+.anim-chibi-arm {
+  animation: chibi-arm var(--gesture-dur, 2.4s) ease-in-out infinite;
+  animation-delay: var(--gesture-delay, 0s);
+  transform-origin: 50% 75%;
+  display: inline-block;
+}
+
+@keyframes chibi-arm {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  35% { transform: rotate(-3deg) translateY(-1px); }
+  65% { transform: rotate(3deg) translateY(-2px); }
+}
+
+.bubble-floor-hello {
+  background: #faf8f4;
+  color: #3d3d3d;
+  border: 1.5px solid #c9a962;
+  border-radius: 14px 14px 14px 4px;
+  box-shadow: 0 4px 16px rgba(61, 61, 61, 0.15);
+  font-size: 9px;
+  font-weight: 600;
+  max-width: 118px;
+  white-space: normal;
+  line-height: 1.3;
+  text-align: center;
+  padding: 5px 8px;
+  animation: bubble-pop 3.6s ease-in-out, bubble-idle 2.8s ease-in-out infinite;
+}
+
+.bubble-floor-hello::after {
+  border-top-color: #faf8f4;
+  border-width: 5px;
+}
+
 /* ===== 업무지시방 (카카오톡 스타일) ===== */
 /* 상대(팀장) 말풍선 좌측 꼬리 */
 .kk-bubble-other {
@@ -638,7 +748,8 @@ body {
   .anim-screen, .anim-walk, .speech-bubble, .anim-pace, .anim-face,
   .bubble-floor, .kk-dot, .anime-floor-bg, .anime-hallway, .anime-room-shine,
   .anime-room-icon, .anime-note, .anime-sparkle, .anime-title-banner,
-  .anim-chibi-bob {
+  .anim-chibi-bob, .hello-iso-floor-img, .hello-hub-pulse, .hello-iso-sparkle,
+  .anim-chibi-idle, .anim-chibi-head, .anim-chibi-arm, .hello-iso-banner {
     animation: none;
   }
 }
