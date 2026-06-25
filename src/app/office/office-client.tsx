@@ -23,9 +23,22 @@ import { BRAND_ASSETS } from "@/data/brand-assets";
 
 type EventItem = { id: number; ts: string; actor: string | null; message: string };
 
+type AttendanceStats = {
+  working: number;
+  meeting: number;
+  idle: number;
+  checkInsToday?: number;
+  checkOutsToday?: number;
+  onPremises?: number;
+};
+
 export function OfficeClient() {
   const [data, setData] = useState<CompanyData | null>(null);
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [attendanceStats, setAttendanceStats] = useState<AttendanceStats | null>(
+    null,
+  );
   const [selected, setSelected] = useState<Employee | null>(null);
   const [checking, setChecking] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,10 +52,15 @@ export function OfficeClient() {
 
   const load = useCallback(async () => {
     try {
-      const [c, e] = await Promise.all([
+      const [authRes, c, e] = await Promise.all([
+        fetch("/api/auth/google", { cache: "no-store" }).then((r) => r.json()),
         fetch("/api/company", { cache: "no-store" }).then((r) => r.json()),
         fetch("/api/events", { cache: "no-store" }).then((r) => r.json()),
       ]);
+
+      const admin = !!authRes.admin;
+      setIsAdmin(admin);
+
       if (!c.error) {
         const demo = getDemoCompanyData();
         setData({
@@ -52,12 +70,28 @@ export function OfficeClient() {
           sites: c.sites?.length ? c.sites : demo.sites,
           stats: c.employees?.length ? c.stats : demo.stats,
         });
+        if (admin && c.stats) {
+          setAttendanceStats({
+            working: c.stats.working ?? 0,
+            meeting: c.stats.meeting ?? 0,
+            idle: c.stats.idle ?? 0,
+            checkInsToday: c.stats.checkInsToday,
+            checkOutsToday: c.stats.checkOutsToday,
+            onPremises: c.stats.onPremises,
+          });
+        } else {
+          setAttendanceStats(null);
+        }
       } else {
         setData(getDemoCompanyData());
+        setAttendanceStats(null);
       }
-      if (!e.error) setEvents(e.events);
+      if (!e.error && admin) setEvents(e.events);
+      else if (!admin) setEvents([]);
     } catch {
       setData(getDemoCompanyData());
+      setAttendanceStats(null);
+      setIsAdmin(false);
     }
     setLoading(false);
   }, []);
@@ -186,16 +220,37 @@ export function OfficeClient() {
         <div>
           <h1 className="text-2xl font-bold">🎹 Hello Music — AI 학원관리</h1>
           <p className="mt-1 text-sm text-sub">
-            {data.stats.total}명(원장·강사·원생)이 1층 학원에서 실시간 운영 ·
-            원장 &gt; 팀장 &gt; 직원
+            {isAdmin
+              ? `${data.stats.total}명 · HelloManager 오늘 등·퇴원 연동`
+              : "Hello Music AI 학원 · 평면도 체험"}
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-          <div className="flex gap-2 text-xs">
-            <Stat label="근무" value={data.stats.working} dot="bg-emerald-400" />
-            <Stat label="회의" value={data.stats.meeting} dot="bg-blue-400" />
-            <Stat label="대기" value={data.stats.idle} dot="bg-slate-500" />
-          </div>
+          {isAdmin && attendanceStats && (
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex gap-2 text-xs">
+                <Stat
+                  label="근무"
+                  value={attendanceStats.working}
+                  dot="bg-emerald-400"
+                />
+                <Stat
+                  label="회의"
+                  value={attendanceStats.meeting}
+                  dot="bg-blue-400"
+                />
+                <Stat
+                  label="대기"
+                  value={attendanceStats.idle}
+                  dot="bg-slate-500"
+                />
+              </div>
+              <p className="text-[10px] text-muted">
+                오늘 등원 {attendanceStats.checkInsToday ?? 0} · 퇴원{" "}
+                {attendanceStats.checkOutsToday ?? 0}
+              </p>
+            </div>
+          )}
           <div className="flex overflow-hidden rounded-lg ring-1 ring-theme">
             <button
               onClick={() => setView("building")}
@@ -305,17 +360,21 @@ export function OfficeClient() {
             각 구역 캐릭터가 1층 평면도에서 돌아다니며 잡담합니다 · 🎹 학원상담 · 📋
             학원정보
           </p>
-          <div className="mt-4 rounded-xl border border-theme bg-card p-3">
-            <h3 className="text-xs font-bold text-sub">🛰 실시간 활동</h3>
-            <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-              {events.slice(0, 8).map((e) => (
-                <li key={e.id} className="text-muted">
-                  <span className="text-sub">{e.actor ?? "시스템"}</span> ·{" "}
-                  {e.message}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {isAdmin && (
+            <div className="mt-4 rounded-xl border border-theme bg-card p-3">
+              <h3 className="text-xs font-bold text-sub">
+                🛰 실시간 활동 (HelloManager)
+              </h3>
+              <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                {events.slice(0, 8).map((e) => (
+                  <li key={e.id} className="text-muted">
+                    <span className="text-sub">{e.actor ?? "시스템"}</span> ·{" "}
+                    {e.message}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
@@ -431,23 +490,24 @@ export function OfficeClient() {
           })}
         </div>
 
-        {/* 우측: 실시간 이벤트 로그 */}
-        <aside className="rounded-xl border border-theme bg-card p-4">
-          <h3 className="flex items-center gap-2 text-sm font-bold">
-            🛰 실시간 활동
-          </h3>
-          <ul className="mt-3 space-y-2 text-xs">
-            {events.length === 0 && (
-              <li className="text-muted">이벤트가 없습니다.</li>
-            )}
-            {events.map((e) => (
-              <li key={e.id} className="anim-bubble border-l-2 border-theme pl-2">
-                <span className="text-sub">{e.actor ?? "시스템"}</span>
-                <span className="text-muted"> · {e.message}</span>
-              </li>
-            ))}
-          </ul>
-        </aside>
+        {isAdmin && (
+          <aside className="rounded-xl border border-theme bg-card p-4">
+            <h3 className="flex items-center gap-2 text-sm font-bold">
+              🛰 실시간 활동 (HelloManager)
+            </h3>
+            <ul className="mt-3 space-y-2 text-xs">
+              {events.length === 0 && (
+                <li className="text-muted">이벤트가 없습니다.</li>
+              )}
+              {events.map((e) => (
+                <li key={e.id} className="anim-bubble border-l-2 border-theme pl-2">
+                  <span className="text-sub">{e.actor ?? "시스템"}</span>
+                  <span className="text-muted"> · {e.message}</span>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
       </div>
 
       {/* 학원상담 (카카오톡 스타일 · 원장 AI) */}

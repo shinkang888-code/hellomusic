@@ -104,6 +104,27 @@ async function main() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS attendance_records (
+      id SERIAL PRIMARY KEY,
+      external_member_id TEXT NOT NULL,
+      member_name TEXT NOT NULL,
+      member_role TEXT NOT NULL DEFAULT 'student',
+      employee_slug TEXT,
+      event_type TEXT NOT NULL,
+      recorded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      attendance_date DATE NOT NULL DEFAULT CURRENT_DATE,
+      source TEXT NOT NULL DEFAULT 'hello_manager',
+      CONSTRAINT attendance_records_event_unique
+        UNIQUE (external_member_id, event_type, recorded_at)
+    )
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_attendance_date
+    ON attendance_records (attendance_date DESC)
+  `;
+
   const infoRows = await sql`SELECT id FROM academy_info WHERE id = 1`;
   if (infoRows.length === 0) {
     await sql`
@@ -116,7 +137,7 @@ async function main() {
     `;
   }
 
-  console.log("LC Academy DB 스키마 초기화 완료 (academy_info 포함)");
+  console.log("LC Academy DB 스키마 초기화 완료 (academy_info, attendance_records 포함)");
 }
 
 main().catch((e) => {

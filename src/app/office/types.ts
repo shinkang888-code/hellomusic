@@ -48,6 +48,9 @@ export type CompanyData = {
     meeting: number;
     idle: number;
     departments: number;
+    checkInsToday?: number;
+    checkOutsToday?: number;
+    onPremises?: number;
   };
 };
 

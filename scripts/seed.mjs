@@ -74,6 +74,33 @@ async function main() {
   // 4) seed event
   await sql`INSERT INTO event_log (actor, message) VALUES ('시스템', 'Hello Music Academy 학원 초기화 — 1F 평면도 가동')`;
 
+  // 5) HelloManager 연동 — 오늘 등·퇴원 샘플 (KST)
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
+  const samples = [
+    ["dir-1", "김원장", "director", "director-principal", "check_in", "09:00"],
+    ["dir-1", "김원장", "director", "director-principal", "meeting_start", "10:30"],
+    ["tea-1", "박서연", "teacher", "teacher-park", "check_in", "09:15"],
+    ["stu-1", "지아", "student", "student-jia", "check_in", "14:00"],
+    ["stu-2", "도윤", "student", "student-doyoon", "check_in", "15:30"],
+    ["stu-3", "서윤", "student", "student-seoyoon", "check_out", "12:00"],
+    ["adm-1", "박행정", "staff", "admin-lead", "check_in", "08:50"],
+  ];
+  for (const [mid, name, role, slug, ev, hm] of samples) {
+    const recorded = `${today}T${hm}:00+09:00`;
+    await sql`
+      INSERT INTO attendance_records (
+        external_member_id, member_name, member_role, employee_slug,
+        event_type, recorded_at, attendance_date, source
+      )
+      VALUES (
+        ${mid}, ${name}, ${role}, ${slug}, ${ev}, ${recorded}::timestamptz,
+        ${today}::date, 'hello_manager'
+      )
+      ON CONFLICT (external_member_id, event_type, recorded_at) DO NOTHING
+    `;
+  }
+  console.log(`등·퇴원 샘플 ${samples.length}건 (${today})`);
+
   const [{ count: emp }] = await sql`SELECT count(*)::int AS count FROM employees`;
   const [{ count: dep }] = await sql`SELECT count(*)::int AS count FROM departments`;
   console.log(`\n완료: 부서 ${dep}개, 직원 ${emp}명`);
