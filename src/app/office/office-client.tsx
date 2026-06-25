@@ -19,20 +19,18 @@ import { deptRealAvatarUrl } from "./resize-avatar";
 type EventItem = { id: number; ts: string; actor: string | null; message: string };
 
 const CHITCHAT = [
-  "오늘 배포 언제죠?",
-  "커피 한잔 ☕",
-  "이 버그 누구 거예요?",
-  "회의 또 있어요? 😵",
-  "데이터 확인 중…",
-  "거의 다 됐어요!",
-  "리뷰 부탁드려요 🙏",
-  "점심 뭐 먹죠?",
-  "이거 잘 되네요 ✨",
-  "잠깐 도와주실 분?",
-  "마감 화이팅 🔥",
-  "오늘도 출근 완료",
-  "테스트 통과! ✅",
-  "아이디어 떠올랐어요 💡",
+  "오늘 연습곡 뭐예요? 🎹",
+  "콩쿠르 준비 화이팅!",
+  "Theory Room 이론 시험!",
+  "그랜드 스튜디오 예약 ✨",
+  "등·하원 알림 보냈어요 📱",
+  "체험레슨 상담 잡았어요",
+  "연습실 비었어요!",
+  "발표회 리허설~ 🎵",
+  "바이엘 다음 페이지!",
+  "원장님 부르셨대요",
+  "손가락 스트레칭 했어요?",
+  "레슨 10분 전! ⏰",
 ];
 
 function chatFor(emp: Employee): string {
@@ -198,41 +196,42 @@ export function OfficeClient() {
       {/* 간판 히어로 */}
       <div className="relative mb-6 overflow-hidden rounded-2xl ring-1 ring-theme">
         <Image
-          src="/brand/lonex-office-hero.png"
-          alt="Lonex 라이브 오피스"
+          src="/images/hero-home.png"
+          alt="Hello Music Academy"
           width={1600}
           height={600}
           priority
           className="h-40 w-full object-cover sm:h-56"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-page)]/90 via-[var(--bg-page)]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1e2a4a]/95 via-[#1e2a4a]/50 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10">
           <div className="flex items-center gap-3">
             <Image
-              src="/brand/lonex-logo.png"
-              alt="Lonex"
+              src="/brand/hello-music-logo.png"
+              alt="Hello Music"
               width={48}
               height={48}
               className="size-10 rounded-lg sm:size-12"
             />
-            <span className="text-2xl font-bold tracking-tight sm:text-3xl">
-              로넥스 <span className="text-sub">· 라이브 오피스</span>
+            <span className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Hello <span className="text-amber-300">Music</span>
+              <span className="text-white/70"> · AI 학원</span>
             </span>
           </div>
-          <p className="mt-2 max-w-md text-sm text-blue-200 sm:text-base">
-            The Logical Nexus of Infinite Data.
+          <p className="mt-2 max-w-md text-sm text-amber-100 sm:text-base">
+            Play. Learn. Grow.
           </p>
-          <p className="text-xs text-sub">무한한 데이터를 잇는 논리적 연결점.</p>
+          <p className="text-xs text-amber-100/70">음악으로 마음을 여는 헬로뮤직</p>
         </div>
       </div>
 
       {/* 상단 바 */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">🏫 LC Academy — AI 학원관리</h1>
+          <h1 className="text-2xl font-bold">🎹 Hello Music — AI 학원관리</h1>
           <p className="mt-1 text-sm text-sub">
-            {data.stats.total}명(원장·강사·원생)이 {data.stats.departments}개
-            층에서 실시간 운영 중 · 조직: 원장 &gt; 팀장 &gt; 직원
+            {data.stats.total}명(원장·강사·원생)이 1층 학원에서 실시간 운영 ·
+            원장 &gt; 팀장 &gt; 직원
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -260,7 +259,7 @@ export function OfficeClient() {
                   : "bg-card text-sub hover:bg-elevated-hover"
               }`}
             >
-              🗂 층별 뷰
+              🗂 구역별 뷰
             </button>
           </div>
           <button
@@ -270,12 +269,12 @@ export function OfficeClient() {
             💬 업무지시방
           </button>
           <a
-            href="https://grend.grend.kr/login"
+            href="https://blog.naver.com/hellomusic0104"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
           >
-            [그렌드]
+            📝 Blog
           </a>
           <Link
             href="/control-tower"
@@ -331,7 +330,7 @@ export function OfficeClient() {
             onSelect={setSelected}
           />
           <p className="mt-2 text-center text-xs text-muted">
-            각 층 팀장·직원이 평면도에서 실시간 활동합니다 · 캐릭터를 클릭하면
+            각 구역 팀장·직원이 1층 평면도에서 실시간 활동합니다 · 캐릭터를 클릭하면
             업무를 지시할 수 있어요
           </p>
           <div className="mt-4 rounded-xl border border-theme bg-card p-3">
@@ -404,7 +403,7 @@ export function OfficeClient() {
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="text-[10px] font-semibold text-muted">
-                              {dept.slug === "floor-director"
+                              {dept.slug === "room-director"
                                 ? "👑 원장(대표)"
                                 : "🎯 AI 팀장"}
                             </p>

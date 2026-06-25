@@ -2,8 +2,9 @@ import { Nav } from "../components/nav";
 import { OfficeClient } from "./office-client";
 
 export const metadata = {
-  title: "학원 빌딩 — LC Academy AI 학원관리",
-  description: "원장·강사·원생이 4층 학원 빌딩에서 실시간 운영되는 AI 학원관리 프로그램",
+  title: "AI 학원 — Hello Music Academy",
+  description:
+    "헬로뮤직 1층 학원 평면도. 원장·강사·원생 2D 캐릭터가 Piano Practice·Grand Studio에서 실시간 활동.",
 };
 
 export default function OfficePage() {

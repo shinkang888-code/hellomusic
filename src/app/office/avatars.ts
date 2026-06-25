@@ -1,54 +1,51 @@
-// LC Academy 부서 → 캐릭터 아키타입 매핑
-export type Archetype =
-  | "tech"
-  | "creative"
-  | "business"
-  | "research"
-  | "security"
-  | "comms";
+/** Hello Music Academy 2D 2등신 chibi 캐릭터 */
 
-const DEPT_ARCHETYPE: Record<string, Archetype> = {
-  "floor-director": "business",
-  "floor-admin": "business",
-  "floor-teachers": "research",
-  "floor-students": "creative",
+const SLUG_AVATAR: Record<string, string> = {
+  "director-principal": "director-male",
+  "director-vice": "director-female",
+  "admin-lead": "director-female",
+  "admin-billing": "director-female",
+  "admin-counsel": "director-female",
+  "teacher-park": "teacher-female",
+  "teacher-choi": "teacher-male",
+  "teacher-lee": "teacher-female",
+  "teacher-han": "teacher-male",
+  "student-lead-a": "student-girl",
+  "student-lead-b": "student-boy",
+  "student-jia": "student-girl",
+  "student-doyoon": "student-boy",
+  "student-seoyoon": "student-girl",
+  "student-hajun": "student-boy",
+  "student-yuna": "student-girl",
 };
 
-/** 기존 lonex cast 이미지 재활용 */
-const CAST_MAP: Record<string, string> = {
-  "floor-director": "finance",
-  "floor-admin": "project-management",
-  "floor-teachers": "academic",
-  "floor-students": "design",
+const DEPT_DEFAULT: Record<string, string> = {
+  "room-director": "director-male",
+  "room-admin": "director-female",
+  "room-teachers": "teacher-female",
+  "room-students": "student-girl",
 };
 
+export function avatarForEmployee(slug: string): string {
+  const key = SLUG_AVATAR[slug] ?? "student-girl";
+  return `/characters/chibi/${key}.png`;
+}
+
+/** @deprecated 부서 slug 기본 캐릭터 (그리드 뷰) */
 export function avatarFor(departmentSlug: string): string {
-  const cast = CAST_MAP[departmentSlug];
-  if (cast) return `/characters/cast/${cast}_1.png`;
-  const a = DEPT_ARCHETYPE[departmentSlug] ?? "tech";
-  return `/characters/${a}.png`;
+  const key = DEPT_DEFAULT[departmentSlug] ?? "student-girl";
+  return `/characters/chibi/${key}.png`;
 }
 
-const LEFT_FACING = new Set(["floor-teachers", "floor-students"]);
-
-export function baseFlip(departmentSlug: string): boolean {
-  return LEFT_FACING.has(departmentSlug);
-}
-
-export function framesFor(departmentSlug: string): string[] {
-  const a = DEPT_ARCHETYPE[departmentSlug] ?? "tech";
-  return [
-    `/characters/frames/${a}_0.png`,
-    `/characters/frames/${a}_1.png`,
-    `/characters/frames/${a}_2.png`,
-  ];
+export function baseFlip(_departmentSlug: string): boolean {
+  return false;
 }
 
 export function castFramesFor(departmentSlug: string): string[] {
-  const cast = CAST_MAP[departmentSlug];
-  if (!cast) return framesFor(departmentSlug).slice(1);
-  return [
-    `/characters/cast/${cast}_1.png`,
-    `/characters/cast/${cast}_2.png`,
-  ];
+  const key = DEPT_DEFAULT[departmentSlug] ?? "student-girl";
+  return [`/characters/chibi/${key}.png`];
+}
+
+export function framesFor(departmentSlug: string): string[] {
+  return castFramesFor(departmentSlug);
 }

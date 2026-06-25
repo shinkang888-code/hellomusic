@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "lonex AI — 특허 협상 AI 모델 카탈로그",
+  title: "Hello Music Academy — 헬로뮤직 피아노 전문 학원",
   description:
-    "lawygoai 프로젝트를 위한 오픈소스 AI 모델 큐레이션. 한국어 LLM, 특허·법률, 임베딩, OCR, 코딩 모델을 한곳에서.",
+    "헬로뮤직 피아노 학원. 1:1 레슨, 그랜드 스튜디오, AI 학원관리(HelloManager). Play. Learn. Grow.",
 };
 
 export default function RootLayout({

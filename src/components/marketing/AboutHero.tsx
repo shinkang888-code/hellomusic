@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LonexLogo } from "@/components/brand/LonexLogo";
+import { BRAND, HELLO_MANAGER } from "@/data/academy-content";
 
 export function AboutHero() {
   return (
@@ -8,42 +8,52 @@ export function AboutHero() {
       <div className="mx-auto max-w-7xl px-6 pt-16 pb-8 lg:px-8 lg:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full glass-badge px-4 py-1.5 text-xs font-semibold tracking-wide text-sub">
-              <span className="size-2 rounded-full bg-emerald-400" />
-              About Lonex AI
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-[#1e2a4a]/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-sub">
+              <span className="size-2 rounded-full bg-amber-400" />
+              About {BRAND.shortName}
             </div>
 
-            <div className="mt-8">
-              <LonexLogo size="md" accent="AI" />
+            <div className="mt-8 flex items-center gap-3">
+              <Image
+                src="/brand/hello-music-logo.png"
+                alt={BRAND.name}
+                width={56}
+                height={56}
+                className="size-14 rounded-xl ring-1 ring-theme"
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-main sm:text-3xl">
+                  {BRAND.name}
+                </h1>
+                <p className="text-sm text-accent">{BRAND.tagline}</p>
+              </div>
             </div>
 
             <p className="mt-6 text-xl font-medium leading-relaxed text-accent sm:text-2xl">
-              The Logical Nexus of Infinite Data.
+              {HELLO_MANAGER.headline}
             </p>
-            <p className="mt-2 text-base text-muted">
-              무한한 데이터를 잇는 논리적 연결점.
-            </p>
+            <p className="mt-2 text-base text-muted">{HELLO_MANAGER.sub}</p>
 
             <div className="mt-8 space-y-5 text-base leading-relaxed text-sub sm:text-lg">
               <p>
-                Lonex AI는 특허·지식재산·법률 영역에서 AI 기술을 실무에
-                적용하는 기술 기업입니다. lawygoai 플랫폼과 연계하여 특허
-                협상, 문서 분석, 한국어 LLM, 임베딩·리랭킹 등 end-to-end AI
-                스택을 제공합니다.
+                헬로뮤직은 서울 관악구를 기반으로 피아노 전문 1:1 레슨을
+                제공합니다. Piano Practice 1–5, Theory Room, Lecture Hall,
+                Grand Piano Studio로 구성된 1층 학원에서 초급·중급·고급·전공·성인
+                과정을 운영합니다.
               </p>
               <p>
-                217명의 AI 직원이 운영하는 라이브 오피스, Neon PostgreSQL
-                기반 모델 카탈로그, Vercel 위의 Next.js 대시보드는 Lonex AI의
-                기술력과 운영 철학을 보여주는 대표 프로덕트입니다.
+                HelloManager AI 학원관리로 등·하원·수납·카카오 알림톡을 자연어
+                한 마디로 처리하고, 개인정보는 학원 내부에서 안전하게
+                보호합니다. 원장·강사는 음악 교육에만 집중할 수 있습니다.
               </p>
             </div>
 
             <div className="mt-10 flex flex-wrap gap-4">
               <Link href="/office" className="btn-primary">
-                AI 오피스 보기
+                AI 학원 둘러보기
               </Link>
               <Link href="/contact" className="btn-secondary px-5 py-3 text-sm font-semibold">
-                문의하기
+                체험 레슨 상담
               </Link>
             </div>
           </div>
@@ -53,7 +63,7 @@ export function AboutHero() {
               <div className="relative aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5]">
                 <Image
                   src="/images/about-hero.png"
-                  alt="Lonex AI — Enterprise Technology"
+                  alt="Hello Music Academy"
                   fill
                   priority
                   className="object-cover"
@@ -63,8 +73,8 @@ export function AboutHero() {
               </div>
             </div>
             <div className="absolute -bottom-6 -left-4 rounded-2xl bg-card p-5 shadow-lg ring-1 ring-theme sm:-left-8">
-              <p className="text-3xl font-bold text-main">217+</p>
-              <p className="mt-1 text-sm text-sub">AI 직원 라이브 운영</p>
+              <p className="text-3xl font-bold text-main">120+</p>
+              <p className="mt-1 text-sm text-sub">재원 원생 · 9개 레슨실</p>
             </div>
           </div>
         </div>

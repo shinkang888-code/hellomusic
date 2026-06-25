@@ -1,8 +1,9 @@
 ﻿"use client";
 
 import { FormEvent, useState } from "react";
-import { SiteShell } from "@/components/layout/SiteShell";
-import { SectionBadge } from "@/components/ui/SectionBadge";
+import Link from "next/link";
+import { Nav } from "@/app/components/nav";
+import { BRAND } from "@/data/academy-content";
 
 export default function ContactPage() {
   const [email, setEmail] = useState("");
@@ -15,15 +16,18 @@ export default function ContactPage() {
   }
 
   return (
-    <SiteShell>
+    <main className="flex-1 bg-page text-main">
+      <Nav active="contact" />
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-12">
-        <SectionBadge>Contact</SectionBadge>
+        <p className="text-sm font-semibold uppercase tracking-widest text-accent">
+          Contact
+        </p>
         <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
-          문의 <span className="text-blue-400">하기</span>
+          체험 <span className="text-accent">상담</span>
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-sub">
-          협력, 데모, 파트너십 문의를 남겨주세요. 정식 출시 알림은 lonex AI
-          대시보드 대기자 명단을 이용해 주세요.
+          1:1 체험 레슨, 학원 견학, 수강 상담을 예약해 주세요. 헬로뮤직은
+          피아노 전문 1:1 레슨을 제공합니다.
         </p>
       </section>
 
@@ -33,97 +37,84 @@ export default function ContactPage() {
             onSubmit={handleSubmit}
             className="rounded-xl bg-card p-6 ring-1 ring-theme"
           >
-            <h2 className="text-lg font-semibold">회사 문의</h2>
+            <h2 className="text-lg font-semibold">상담 신청</h2>
             <p className="mt-1 text-sm text-sub">
-              이메일과 메시지를 남겨주시면 검토 후 연락드립니다.
+              연락처와 문의 내용을 남겨주시면 담당 강사가 연락드립니다.
             </p>
 
             <label className="mt-6 block text-sm text-sub">
-              이메일
+              이메일 / 연락처
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                className="mt-1.5 w-full rounded-lg border border-theme bg-page px-4 py-2.5 text-main placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="parent@email.com"
+                className="mt-1.5 w-full rounded-lg border border-theme bg-page px-4 py-2.5 text-main placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </label>
 
             <label className="mt-4 block text-sm text-sub">
-              메시지
+              문의 내용
               <textarea
                 required
                 rows={4}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="협력·데모·파트너십 문의 내용"
-                className="mt-1.5 w-full resize-none rounded-lg border border-theme bg-page px-4 py-2.5 text-main placeholder:text-muted focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="체험 레슨 · 수강 과정 · 시간대 문의"
+                className="mt-1.5 w-full resize-none rounded-lg border border-theme bg-page px-4 py-2.5 text-main placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </label>
 
-            <button
-              type="submit"
-              className="mt-6 w-full rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-400"
-            >
-              {status === "sent" ? "접수 완료" : "문의 보내기"}
+            <button type="submit" className="btn-primary mt-6 w-full">
+              {status === "sent" ? "접수 완료" : "상담 신청하기"}
             </button>
 
             {status === "sent" && (
-              <p className="mt-3 text-center text-sm text-emerald-400">
-                문의가 접수되었습니다. 곧 연락드리겠습니다.
+              <p className="mt-3 text-center text-sm text-emerald-500">
+                상담 신청이 접수되었습니다. 곧 연락드리겠습니다.
               </p>
             )}
           </form>
 
           <div className="space-y-4">
             <div className="rounded-xl bg-card p-6 ring-1 ring-theme">
-              <h2 className="text-lg font-semibold">대기자 명단 등록</h2>
-              <p className="mt-2 text-sm text-sub">
-                lonex AI 정식 출시 소식은 Neon DB에 저장되는 대시보드 대기자
-                명단을 이용하세요.
-              </p>
-              <a
-                href="https://lonex-ai.vercel.app"
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-block rounded-lg bg-elevated px-5 py-2.5 text-sm font-semibold text-main ring-1 ring-theme transition hover:bg-elevated-hover"
-              >
-                lonex AI 대시보드 →
-              </a>
+              <h2 className="text-lg font-semibold">학원 연락처</h2>
+              <ul className="mt-3 space-y-2 text-sm text-sub">
+                <li>📞 {BRAND.phone}</li>
+                <li>📱 {BRAND.mobile}</li>
+                <li>✉️ {BRAND.email}</li>
+                <li>💬 카카오 {BRAND.kakao}</li>
+                <li>📍 {BRAND.address}</li>
+              </ul>
             </div>
 
             <div className="rounded-xl bg-card p-6 ring-1 ring-theme">
               <h2 className="text-lg font-semibold">바로가기</h2>
-              <ul className="mt-3 space-y-2 text-sm text-sub">
+              <ul className="mt-3 space-y-2 text-sm">
+                <li>
+                  <Link href="/office" className="text-accent hover:underline">
+                    🎹 AI 학원 평면도
+                  </Link>
+                </li>
                 <li>
                   <a
-                    href="https://lonex-ai.vercel.app/office"
+                    href={BRAND.blogUrl}
                     target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-400 hover:text-blue-300"
+                    rel="noopener noreferrer"
+                    className="text-accent hover:underline"
                   >
-                    🏢 AI 오피스
+                    📝 네이버 블로그
                   </a>
                 </li>
                 <li>
                   <a
-                    href="https://lonex-ai.vercel.app/console"
+                    href={BRAND.siteUrl}
                     target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-400 hover:text-blue-300"
+                    rel="noopener noreferrer"
+                    className="text-accent hover:underline"
                   >
-                    🎛 관리 콘솔
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://huggingface.co/collections/shinkang/lonex-6a3c2d46b16593fecb629a4b"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-400 hover:text-blue-300"
-                  >
-                    HF 컬렉션
+                    🌐 hellomusic.co.kr
                   </a>
                 </li>
               </ul>
@@ -131,6 +122,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-    </SiteShell>
+    </main>
   );
 }

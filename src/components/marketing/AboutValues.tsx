@@ -1,34 +1,11 @@
 import Image from "next/image";
+import { VALUES, HELLO_MANAGER } from "@/data/academy-content";
 
-const values = [
-  {
-    title: "연결 (Nexus)",
-    description:
-      "분산된 데이터·모델·서비스를 하나의 논리적 흐름으로 연결합니다.",
-    icon: "🔗",
-    image: "/images/feature-models.png",
-  },
-  {
-    title: "논리 (Logical)",
-    description:
-      "특허·법률·협상 도메인에 맞는 구조화된 AI 추론과 워크플로를 설계합니다.",
-    icon: "⚖️",
-    image: "/images/feature-legal.png",
-  },
-  {
-    title: "확장 (Infinite)",
-    description:
-      "오픈소스 생태계와 클라우드 인프라로 끊임없이 확장 가능한 플랫폼을 만듭니다.",
-    icon: "∞",
-    image: "/images/feature-office.png",
-  },
-];
-
-const techStack = [
-  { name: "Next.js", desc: "App Router · React 19" },
-  { name: "Neon PostgreSQL", desc: "Serverless Postgres" },
-  { name: "Vercel", desc: "Edge · CI/CD" },
-  { name: "Hugging Face", desc: "Model Hub · 184+ items" },
+const facilities = [
+  { name: "Piano Practice 1–5", desc: "개인 연습실 5실" },
+  { name: "Grand Piano Studio", desc: "그랜드 피아노 스튜디오" },
+  { name: "Theory · Lecture", desc: "이론·그룹 수업실" },
+  { name: "HelloManager AI", desc: "등·하원·수납·알림톡" },
 ];
 
 export function AboutValues() {
@@ -41,40 +18,54 @@ export function AboutValues() {
               Core Values
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-main sm:text-4xl">
-              핵심 가치
+              헬로뮤직 교육 철학
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sub">
-              Lonex AI는 연결, 논리, 확장이라는 세 가지 원칙 위에
-              엔터프라이즈 AI 플랫폼을 구축합니다.
+              1:1 맞춤 레슨, 체계적 커리큘럼, AI 학원관리 — 음악과 운영을
+              함께 성장시킵니다.
             </p>
           </div>
 
           <div className="mt-14 grid gap-8 lg:grid-cols-3">
-            {values.map((value) => (
+            {VALUES.map((value, i) => (
               <article
                 key={value.title}
-                className="value-card group overflow-hidden rounded-2xl bg-card ring-1 ring-theme"
+                className="value-card rounded-2xl bg-card p-8 ring-1 ring-theme"
               >
-                <div className="relative h-40 overflow-hidden">
-                  <Image
-                    src={value.image}
-                    alt=""
-                    fill
-                    className="object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
-                    sizes="(max-width: 1024px) 100vw, 33vw"
-                  />
-                  <div className="value-card-overlay absolute inset-0" aria-hidden />
-                  <span className="absolute bottom-4 left-4 flex size-12 items-center justify-center rounded-xl bg-card/90 text-2xl backdrop-blur ring-1 ring-theme">
-                    {value.icon}
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-main">{value.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-sub">
-                    {value.description}
-                  </p>
-                </div>
+                <span className="flex size-14 items-center justify-center rounded-2xl bg-[#1e2a4a]/10 text-3xl">
+                  {value.icon}
+                </span>
+                <h3 className="mt-5 text-lg font-bold text-main">{value.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-sub">
+                  {value.description}
+                </p>
               </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-theme py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-accent">
+              HelloManager
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-main sm:text-4xl">
+              AI 학원 통합 관리
+            </h2>
+            <p className="mt-4 text-sub">{HELLO_MANAGER.sub}</p>
+          </div>
+
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {HELLO_MANAGER.features.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-2xl bg-card p-5 ring-1 ring-theme"
+              >
+                <h3 className="font-bold text-main">{f.title}</h3>
+                <p className="mt-2 text-sm text-sub">{f.desc}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -84,28 +75,27 @@ export function AboutValues() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-widest text-accent">
-              Infrastructure
+              Facilities
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-main sm:text-4xl">
-              기술 스택
+              1층 학원 시설
             </h2>
             <p className="mt-4 text-sub">
-              lonex-ai.vercel.app 대시보드와 동일한 프로덕션 인프라.
+              Academy Floor Plan 기준 9개 공간 — 연습·이론·그랜드 스튜디오
             </p>
           </div>
 
           <dl className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {techStack.map((tech, i) => (
+            {facilities.map((f) => (
               <div
-                key={tech.name}
+                key={f.name}
                 className="tech-card rounded-2xl bg-card p-6 ring-1 ring-theme"
-                style={{ animationDelay: `${i * 80}ms` }}
               >
                 <dt className="text-xs font-semibold uppercase tracking-wider text-muted">
-                  Platform
+                  Room
                 </dt>
-                <dd className="mt-2 text-xl font-bold text-main">{tech.name}</dd>
-                <dd className="mt-1 text-sm text-sub">{tech.desc}</dd>
+                <dd className="mt-2 text-lg font-bold text-main">{f.name}</dd>
+                <dd className="mt-1 text-sm text-sub">{f.desc}</dd>
               </div>
             ))}
           </dl>
