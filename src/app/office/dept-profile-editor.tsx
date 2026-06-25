@@ -123,7 +123,8 @@ export function DeptProfileEditor({
           {department.label} · 실무 담당 프로필
         </h3>
         <p className="mt-1 text-xs text-sub">
-          AI 팀장 <span className="text-sub">{aiLeaderName}</span> 밑에
+          AI 팀장 <span className="text-sub">{aiLeaderName}</span> 밑에 실무
+          담당(강사·행정)을 등록합니다
           실제 직원 정보를 등록합니다.
         </p>
 

@@ -229,10 +229,10 @@ export function OfficeClient() {
       {/* 상단 바 */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">🏢 lonex AI 컴퍼니 — 라이브 오피스</h1>
+          <h1 className="text-2xl font-bold">🏫 LC Academy — AI 학원관리</h1>
           <p className="mt-1 text-sm text-sub">
-            {data.stats.total}명의 AI 직원이 {data.stats.departments}개 부서에서
-            실시간 근무 중 · 테두리 색이 사이트 상태를 나타냅니다
+            {data.stats.total}명(원장·강사·원생)이 {data.stats.departments}개
+            층에서 실시간 운영 중 · 조직: 원장 &gt; 팀장 &gt; 직원
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -250,7 +250,7 @@ export function OfficeClient() {
                   : "bg-card text-sub hover:bg-elevated-hover"
               }`}
             >
-              🏙 빌딩 뷰
+              🏫 평면도
             </button>
             <button
               onClick={() => setView("grid")}
@@ -260,7 +260,7 @@ export function OfficeClient() {
                   : "bg-card text-sub hover:bg-elevated-hover"
               }`}
             >
-              🗂 부서 뷰
+              🗂 층별 뷰
             </button>
           </div>
           <button
@@ -331,7 +331,7 @@ export function OfficeClient() {
             onSelect={setSelected}
           />
           <p className="mt-2 text-center text-xs text-muted">
-            각 층 부서 대표가 실시간으로 걸어다니며 잡담합니다 · 캐릭터를 클릭하면
+            각 층 팀장·직원이 평면도에서 실시간 활동합니다 · 캐릭터를 클릭하면
             업무를 지시할 수 있어요
           </p>
           <div className="mt-4 rounded-xl border border-theme bg-card p-3">
@@ -404,7 +404,9 @@ export function OfficeClient() {
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="text-[10px] font-semibold text-muted">
-                              🤖 AI 팀장
+                              {dept.slug === "floor-director"
+                                ? "👑 원장(대표)"
+                                : "🎯 AI 팀장"}
                             </p>
                             <p className="truncate text-xs text-sub">
                               {aiLeader.name}

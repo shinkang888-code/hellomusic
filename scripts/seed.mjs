@@ -55,14 +55,12 @@ async function main() {
   }
   console.log(`직원 ${agents.length}명 시드 완료`);
 
-  // 3) demo sites (관제탑 점검 대상)
+  // 3) demo sites (학원 관제탑 점검 대상)
   const sites = [
-    ["사주puri", "https://sajupuri.kr", "specialized"],
-    ["BeautyPang", "https://beautypang.kr", "marketing"],
-    ["PropTax", "https://proptax.kr", "finance"],
-    ["Wage", "https://wage.kr", "finance"],
-    ["HappyHouse", "https://happyhouse43.ri", "product"],
-    ["lonex AI", "https://lonex-ai.vercel.app", "engineering"],
+    ["LC Academy", "https://lc-aca.vercel.app", "floor-director"],
+    ["학원 등록 포털", "https://lc-aca.vercel.app/office", "floor-admin"],
+    ["강사 스케줄", "https://lc-aca.vercel.app/console", "floor-teachers"],
+    ["원생 학습실", "https://lc-aca.vercel.app/office", "floor-students"],
   ];
   for (const [name, url, dept] of sites) {
     await sql`
@@ -74,7 +72,7 @@ async function main() {
   console.log(`사이트 ${sites.length}개 시드 완료`);
 
   // 4) seed event
-  await sql`INSERT INTO event_log (actor, message) VALUES ('시스템', '회사 초기화 완료 — 전 직원 출근')`;
+  await sql`INSERT INTO event_log (actor, message) VALUES ('시스템', 'LC Academy 학원 초기화 완료 — 원장·강사·원생 출석')`;
 
   const [{ count: emp }] = await sql`SELECT count(*)::int AS count FROM employees`;
   const [{ count: dep }] = await sql`SELECT count(*)::int AS count FROM departments`;

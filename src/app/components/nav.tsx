@@ -10,7 +10,7 @@ export function Nav({
     { href: "/", label: "홈", key: "home" },
     { href: "/about", label: "회사 소개", key: "about" },
     { href: "/services", label: "사업 영역", key: "services" },
-    { href: "/office", label: "🏢 AI 오피스", key: "office" },
+    { href: "/office", label: "🏫 학원 빌딩", key: "office" },
     { href: "/control-tower", label: "🛰 LogShield", key: "control-tower" },
     { href: "/console", label: "🎛 관리 콘솔", key: "console" },
     { href: "/contact", label: "문의", key: "contact" },
@@ -28,7 +28,7 @@ export function Nav({
             className="size-8 rounded-md ring-1 ring-theme"
           />
           <span>
-            Lonex <span className="text-accent">AI</span>
+            LC <span className="text-accent">Academy</span>
           </span>
         </Link>
         <div className="flex flex-wrap items-center justify-end gap-1 text-sm">

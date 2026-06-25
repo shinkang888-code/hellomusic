@@ -6,32 +6,64 @@ import { type Department, type Employee, STATUS_META } from "./types";
 import { avatarFor, baseFlip } from "./avatars";
 
 const CHITCHAT = [
-  "오늘 배포 언제죠?",
-  "커피 한잔 하실래요? ☕",
-  "이 버그 누구 거예요? 🐛",
-  "회의 또 있어요? 😵",
-  "데이터 확인 중입니다",
-  "거의 다 끝났어요!",
-  "리뷰 부탁드려요 🙏",
-  "점심 뭐 먹죠? 🍜",
-  "이거 잘 되네요 ✨",
-  "잠깐 도와주실 분? 🙋",
-  "마감 화이팅! 🔥",
-  "오늘도 출근 완료 💪",
-  "테스트 통과했어요 ✅",
-  "아이디어 떠올랐어요! 💡",
-  "주말 계획 있으세요?",
-  "이번 스프린트 빡세네요 😅",
-  "고객 피드백 좋아요 🎉",
-  "캐릭터 귀엽지 않아요?",
+  "오늘 시험 범위 확인했어요?",
+  "숙제 다 했나요? 📝",
+  "점심 급식 맛있었어요 🍱",
+  "이 문제 어떻게 풀죠? 🤔",
+  "원장님 부르셨대요",
+  "상담 예약 잡았어요",
+  "출석 체크 완료! ✅",
+  "자습 시간이에요 📚",
+  "강의 자료 준비 중",
+  "학부모 연락 왔어요 📞",
+  "성적표 입력 중…",
+  "오늘 특강 있어요!",
+  "코딩 프로젝트 화이팅 💻",
+  "A반 모두 집중! 🔥",
 ];
 
-// 4개 층 × 4열 = 16개 부서 슬롯
-// 각 층 바닥(짙은 네이비 슬래브 = 파란선) 바로 위에 신발이 닿도록 보정한 % 값
-const FLOOR_FEET = [28, 51.5, 74.5, 95.5];
-const COL_LEFT = [24, 44, 63, 82]; // 엘리베이터/계단(좌측) 피해서 (%)
+/** 층별 평면도 설정 — 상단(4F)에서 내려다보는 top-down 뷰 */
+const FLOORS = [
+  {
+    floor: 4,
+    label: "4F",
+    room: "원장실",
+    slug: "floor-director",
+    cols: 2,
+    bg: "from-violet-900/40 to-violet-950/60",
+  },
+  {
+    floor: 3,
+    label: "3F",
+    room: "행정실",
+    slug: "floor-admin",
+    cols: 4,
+    bg: "from-blue-900/40 to-blue-950/60",
+  },
+  {
+    floor: 2,
+    label: "2F",
+    room: "강사실",
+    slug: "floor-teachers",
+    cols: 4,
+    bg: "from-emerald-900/40 to-emerald-950/60",
+  },
+  {
+    floor: 1,
+    label: "1F",
+    room: "원생학습실",
+    slug: "floor-students",
+    cols: 4,
+    bg: "from-amber-900/40 to-amber-950/60",
+  },
+] as const;
 
-type Slot = { dept: Department; rep: Employee; top: number; left: number };
+type Slot = {
+  dept: Department;
+  rep: Employee;
+  col: number;
+  cols: number;
+};
 
 export function BuildingScene({
   departments,
@@ -42,136 +74,167 @@ export function BuildingScene({
   employees: Employee[];
   onSelect: (e: Employee) => void;
 }) {
-  // 부서별 대표 1명 (부서 내 첫 직원)
-  const slots = useMemo<Slot[]>(() => {
+  const deptBySlug = useMemo(
+    () => new Map(departments.map((d) => [d.slug, d])),
+    [departments],
+  );
+
+  const slotsByFloor = useMemo(() => {
     const repByDept = new Map<string, Employee>();
+    const allByDept = new Map<string, Employee[]>();
     for (const e of employees) {
-      if (!repByDept.has(e.department_slug)) repByDept.set(e.department_slug, e);
+      if (!repByDept.has(e.department_slug))
+        repByDept.set(e.department_slug, e);
+      const list = allByDept.get(e.department_slug) ?? [];
+      list.push(e);
+      allByDept.set(e.department_slug, list);
     }
-    const ordered = [...departments].sort((a, b) => a.sort - b.sort);
-    const out: Slot[] = [];
-    ordered.forEach((dept, i) => {
-      const rep = repByDept.get(dept.slug);
-      if (!rep) return;
-      const floor = Math.floor(i / 4);
-      const col = i % 4;
-      out.push({
+
+    return FLOORS.map((f) => {
+      const dept = deptBySlug.get(f.slug);
+      if (!dept) return { floor: f, slots: [] as Slot[], members: [] as Employee[] };
+
+      const members = allByDept.get(f.slug) ?? [];
+      const leaders = members.slice(0, f.cols);
+      const slots: Slot[] = leaders.map((rep, col) => ({
         dept,
         rep,
-        top: FLOOR_FEET[floor] ?? 95,
-        left: COL_LEFT[col] ?? 50,
-      });
-    });
-    return out;
-  }, [departments, employees]);
+        col,
+        cols: f.cols,
+      }));
 
-  // 상시 잡담: 주기적으로 일부 슬롯만 말풍선 표시
+      return { floor: f, slots, members };
+    });
+  }, [departments, employees, deptBySlug]);
+
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 2600);
+    const t = setInterval(() => setTick((n) => n + 1), 2800);
     return () => clearInterval(t);
   }, []);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl ring-1 ring-slate-800">
-      <Image
-        src="/brand/office-building-bg.png"
-        alt="로넥스 오피스 빌딩"
-        width={1400}
-        height={933}
-        priority
-        className="h-auto w-full select-none"
-      />
-      {/* 캐릭터 오버레이 */}
-      <div className="pointer-events-none absolute inset-0">
-        {slots.map((s, i) => {
-          const meta = STATUS_META[s.rep.status];
-          const range = 40 + ((s.rep.id * 11) % 50); // 40~90px
-          const dur = 7 + ((s.rep.id * 7) % 8); // 7~14s
-          const delay = (s.rep.id * 5) % 6; // 0~5s
-          const show = (tick + i) % 2 === 0;
-          const msg =
-            s.rep.status === "error"
-              ? "🚨 장애 대응 중!"
-              : s.rep.current_task ||
-                CHITCHAT[(s.rep.id + tick) % CHITCHAT.length];
+    <div className="overflow-hidden rounded-2xl ring-1 ring-slate-700">
+      {/* 건물 외곽 — 위에서 내려다본 평면도 */}
+      <div className="border-b border-slate-700 bg-slate-900 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-white">🏫 LC Academy 빌딩</h2>
+            <p className="text-[11px] text-slate-400">
+              상단 평면도 · 4F 원장실 → 1F 원생학습실
+            </p>
+          </div>
+          <div className="flex gap-1 text-[10px] text-slate-500">
+            <span className="rounded bg-violet-500/20 px-2 py-0.5 text-violet-300">
+              원장
+            </span>
+            <span className="rounded bg-blue-500/20 px-2 py-0.5 text-blue-300">
+              행정
+            </span>
+            <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-emerald-300">
+              강사
+            </span>
+            <span className="rounded bg-amber-500/20 px-2 py-0.5 text-amber-300">
+              원생
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-1 bg-slate-950 p-2">
+        {slotsByFloor.map(({ floor: f, slots, members }, fi) => {
+          const dept = deptBySlug.get(f.slug);
           return (
             <div
-              key={s.dept.slug}
-              className="absolute"
-              style={{
-                top: `${s.top}%`,
-                left: `${s.left}%`,
-                transform: "translate(-50%, -100%)",
-              }}
+              key={f.slug}
+              className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${f.bg} ring-1 ring-white/10`}
             >
-              {/* 좌우 이동(걷기) 레이어 — 앵커와 분리해 transform 충돌 방지 */}
-              <div
-                className="anim-pace relative"
-                style={
-                  {
-                    "--range": `${range}px`,
-                    "--pace-dur": `${dur}s`,
-                    "--pace-delay": `${delay}s`,
-                  } as React.CSSProperties
-                }
-              >
-                {show && (
-                  <span className="bubble-floor" key={tick}>
-                    {msg}
-                  </span>
-                )}
-                {/* 부서 이름표 */}
-                <span
-                  className="absolute -top-1 left-1/2 z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded px-1.5 py-0.5 text-[9px] font-semibold text-white shadow"
-                  style={{ backgroundColor: s.dept.color }}
-                >
-                  {s.dept.label}
+              {/* 층 라벨 (좌측) */}
+              <div className="absolute left-0 top-0 z-10 flex h-full w-14 flex-col items-center justify-center border-r border-white/10 bg-black/30">
+                <span className="text-lg font-black text-white/90">{f.label}</span>
+                <span className="mt-1 text-[9px] font-semibold text-white/60">
+                  {f.room}
                 </span>
-                <button
-                  onClick={() => onSelect(s.rep)}
-                  title={`${s.rep.name} · ${s.dept.label}`}
-                  className="pointer-events-auto relative flex flex-col items-center transition-transform hover:scale-110"
-                >
-                  {/* 바닥 그림자 */}
-                  <span className="absolute -bottom-0.5 left-1/2 h-1 w-6 -translate-x-1/2 rounded-[50%] bg-black/50 blur-[2px]" />
-                  {/*
-                    단일 이미지(_1.png, 오른쪽 보기)를 이동 방향에 맞춰 좌우 미러링.
-                    오른쪽 이동 → 원본(코 오른쪽), 왼쪽 이동 → 좌우반전(코 왼쪽).
-                    프레임 교체(팔락거림)·옷 변화 없음.
-                  */}
-                  <span
-                    className="anim-face block h-[clamp(36px,8vw,64px)]"
-                    style={
-                      {
-                        "--pace-dur": `${dur}s`,
-                        "--pace-delay": `${delay}s`,
-                      } as React.CSSProperties
-                    }
-                  >
-                    {/* 왼쪽 보기 기준 이미지는 좌우반전해 전문팀(오른쪽 보기)으로 정규화 */}
-                    <Image
-                      src={avatarFor(s.dept.slug)}
-                      alt={s.rep.name}
-                      width={120}
-                      height={260}
-                      className="h-full w-auto object-contain object-bottom drop-shadow-xl"
-                      style={
-                        baseFlip(s.dept.slug)
-                          ? { transform: "scaleX(-1)" }
-                          : undefined
-                      }
-                      priority={i < 4}
-                    />
-                  </span>
-                  <span
-                    className={`absolute bottom-0.5 right-0 size-2 rounded-full ring-2 ring-white ${meta.dot}`}
-                  />
-                </button>
+              </div>
+
+              {/* 평면 그리드 */}
+              <div
+                className="grid min-h-[88px] gap-1 p-2 pl-16 sm:min-h-[100px]"
+                style={{
+                  gridTemplateColumns: `repeat(${f.cols}, minmax(0, 1fr))`,
+                }}
+              >
+                {slots.map((s, i) => {
+                  const meta = STATUS_META[s.rep.status];
+                  const show = (tick + fi + i) % 2 === 0;
+                  const msg =
+                    s.rep.status === "error"
+                      ? "🚨 확인 필요!"
+                      : s.rep.current_task ||
+                        CHITCHAT[(s.rep.id + tick) % CHITCHAT.length];
+                  const isLeader = i === 0 || s.rep.slug.includes("lead");
+                  return (
+                    <div
+                      key={s.rep.slug}
+                      className="relative flex flex-col items-center justify-end rounded-lg border border-white/10 bg-black/20 p-1.5 pb-2"
+                    >
+                      {/* 방 구역 표시 */}
+                      <span className="absolute left-1 top-1 text-[8px] font-medium text-white/40">
+                        {isLeader ? "팀장" : "직원"}
+                      </span>
+                      {show && (
+                        <span className="bubble-floor absolute -top-1 z-20 max-w-[90%] truncate text-[8px]">
+                          {msg}
+                        </span>
+                      )}
+                      <button
+                        onClick={() => onSelect(s.rep)}
+                        title={`${s.rep.name} · ${dept?.label ?? f.room}`}
+                        className="group relative flex flex-col items-center transition-transform hover:scale-110"
+                      >
+                        <span
+                          className="block h-[clamp(28px,6vw,48px)]"
+                          style={
+                            baseFlip(f.slug)
+                              ? { transform: "scaleX(-1)" }
+                              : undefined
+                          }
+                        >
+                          <Image
+                            src={avatarFor(f.slug)}
+                            alt={s.rep.name}
+                            width={80}
+                            height={120}
+                            className="h-full w-auto object-contain drop-shadow-lg"
+                            priority={fi === 0}
+                          />
+                        </span>
+                        <span
+                          className={`absolute bottom-0 right-0 size-1.5 rounded-full ring-1 ring-white ${meta.dot}`}
+                        />
+                        <span className="mt-0.5 max-w-full truncate text-[9px] font-semibold text-white">
+                          {s.rep.name}
+                        </span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* 층 인원 요약 */}
+              <div className="border-t border-white/5 px-16 py-1 text-[9px] text-white/40">
+                {dept?.label} · {members.length}명 · 조직: 원장 &gt; 팀장 &gt; 직원
               </div>
             </div>
           );
         })}
+      </div>
+
+      {/* 엘리베이터·계단 표시 */}
+      <div className="flex items-center justify-center gap-4 border-t border-slate-700 bg-slate-900 px-4 py-2 text-[10px] text-slate-500">
+        <span>🛗 엘리베이터</span>
+        <span>🪜 계단</span>
+        <span>북쪽 ↑</span>
       </div>
     </div>
   );
