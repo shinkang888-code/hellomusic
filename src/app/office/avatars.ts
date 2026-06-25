@@ -34,6 +34,24 @@ export function avatarFor(departmentSlug: string): string {
   return `/characters/${a}.png`;
 }
 
+// 기준 이미지(_1.png)가 왼쪽(코가 왼쪽)을 보는 부서들.
+// 전문팀(specialized, 오른쪽 보기)을 기준으로 방향을 통일하기 위해,
+// 이 부서들은 기본 표시 시 좌우반전하여 "오른쪽 보기"로 정규화한다.
+const LEFT_FACING = new Set([
+  "marketing",
+  "paid-media",
+  "product",
+  "sales",
+  "security",
+  "spatial-computing",
+  "support",
+]);
+
+// true면 기준 이미지를 좌우반전해야 전문팀과 같은(오른쪽) 방향이 된다.
+export function baseFlip(departmentSlug: string): boolean {
+  return LEFT_FACING.has(departmentSlug);
+}
+
 // 워크 사이클 프레임 [idle, 왼발, 오른발]
 export function framesFor(departmentSlug: string): string[] {
   const a = DEPT_ARCHETYPE[departmentSlug] ?? "tech";

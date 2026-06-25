@@ -264,13 +264,41 @@ export function WorkChat({
   ]);
   const [input, setInput] = useState("");
   const [loadingLeader, setLoadingLeader] = useState<Leader | null>(null);
+  const [geminiKey, setGeminiKey] = useState("");
   const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setGeminiKey(localStorage.getItem("lonex_gemini_key") ?? "");
+  }, []);
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loadingLeader]);
 
-  function send() {
+  function pushReply(
+    leader: Leader,
+    summary: string,
+    detail: string,
+    links: LinkItem[],
+  ) {
+    const replyText = detail
+      ? `결론부터 말씀드리면, ${summary}\n\n📌 ${detail}`
+      : `결론부터 말씀드리면, ${summary}`;
+    const reply: ChatMessage = {
+      id: idRef.current++,
+      role: "leader",
+      leader,
+      text: links.length
+        ? `${replyText}\n\n🔎 관련 자료를 아래 링크로 정리했습니다.`
+        : replyText,
+      links,
+      time: now(),
+    };
+    setMessages((prev) => [...prev, reply]);
+    setLoadingLeader(null);
+  }
+
+  async function send() {
     const text = input.trim();
     if (!text || loadingLeader) return;
 
@@ -285,26 +313,48 @@ export function WorkChat({
 
     const slug = routeDept(text, availableSlugs);
     const leader =
-      leaderBySlug.get(slug) ??
-      leaderBySlug.get(FALLBACK_SLUG) ??
-      leaders[0];
+      leaderBySlug.get(slug) ?? leaderBySlug.get(FALLBACK_SLUG) ?? leaders[0];
     setLoadingLeader(leader);
 
     const brain = DEPT_BRAIN[slug] ?? DEPT_BRAIN[FALLBACK_SLUG];
 
+    // Gemini 키가 있으면 실제 AI 답변 시도, 실패하면 기본 답변으로 폴백
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          deptLabel: leader.label,
+          role: leader.label,
+          apiKey: geminiKey || undefined,
+        }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as {
+          summary?: string;
+          detail?: string;
+          links?: LinkItem[];
+          error?: string;
+        };
+        if (data.summary) {
+          pushReply(
+            leader,
+            data.summary,
+            data.detail ?? "",
+            Array.isArray(data.links) ? data.links : [],
+          );
+          return;
+        }
+      }
+    } catch {
+      // 네트워크 오류 → 폴백
+    }
+
+    // 폴백: 부서 기본 답변(키 미설정/오류 시)
     window.setTimeout(() => {
-      const replyText = `결론부터 말씀드리면, ${brain.summary}\n\n📌 ${brain.detail}\n\n🔎 관련 자료를 검색해 아래 링크로 정리했습니다.`;
-      const reply: ChatMessage = {
-        id: idRef.current++,
-        role: "leader",
-        leader,
-        text: replyText,
-        links: brain.links,
-        time: now(),
-      };
-      setMessages((prev) => [...prev, reply]);
-      setLoadingLeader(null);
-    }, 1500);
+      pushReply(leader, brain.summary, brain.detail, brain.links);
+    }, 600);
   }
 
   return (
@@ -327,7 +377,8 @@ export function WorkChat({
               </span>
             </h2>
             <p className="truncate text-[11px] text-slate-700">
-              부서 팀장 {leaders.length}명 · 비서팀(지원팀) 대기 중
+              부서 팀장 {leaders.length}명 ·{" "}
+              {geminiKey ? "🤖 Gemini 연결됨" : "비서팀 기본 응답 모드"}
             </p>
           </div>
           <button

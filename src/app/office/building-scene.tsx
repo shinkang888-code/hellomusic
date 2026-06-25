@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { type Department, type Employee, STATUS_META } from "./types";
-import { avatarFor } from "./avatars";
+import { avatarFor, baseFlip } from "./avatars";
 
 const CHITCHAT = [
   "오늘 배포 언제죠?",
@@ -149,12 +149,18 @@ export function BuildingScene({
                       } as React.CSSProperties
                     }
                   >
+                    {/* 왼쪽 보기 기준 이미지는 좌우반전해 전문팀(오른쪽 보기)으로 정규화 */}
                     <Image
                       src={avatarFor(s.dept.slug)}
                       alt={s.rep.name}
                       width={120}
                       height={260}
                       className="h-full w-auto object-contain object-bottom drop-shadow-xl"
+                      style={
+                        baseFlip(s.dept.slug)
+                          ? { transform: "scaleX(-1)" }
+                          : undefined
+                      }
                       priority={i < 4}
                     />
                   </span>

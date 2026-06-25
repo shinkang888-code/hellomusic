@@ -26,6 +26,23 @@ export function ConsoleClient() {
   const [q, setQ] = useState("");
   const [newTask, setNewTask] = useState("");
   const [loading, setLoading] = useState(true);
+  const [geminiKey, setGeminiKey] = useState("");
+  const [keySaved, setKeySaved] = useState(false);
+
+  useEffect(() => {
+    setGeminiKey(localStorage.getItem("lonex_gemini_key") ?? "");
+  }, []);
+
+  function saveGeminiKey() {
+    localStorage.setItem("lonex_gemini_key", geminiKey.trim());
+    setKeySaved(true);
+    setTimeout(() => setKeySaved(false), 1800);
+  }
+
+  function clearGeminiKey() {
+    localStorage.removeItem("lonex_gemini_key");
+    setGeminiKey("");
+  }
 
   const load = useCallback(async () => {
     const [c, t] = await Promise.all([
@@ -150,9 +167,52 @@ export function ConsoleClient() {
           </div>
         </section>
 
-        {/* 할 일판 */}
+        {/* 우측 사이드 */}
         <aside>
-          <h2 className="text-sm font-bold">📋 할 일판</h2>
+          {/* AI 답변 설정 */}
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+            <h2 className="flex items-center gap-1.5 text-sm font-bold">
+              🤖 업무지시방 AI (Gemini)
+            </h2>
+            <p className="mt-1 text-xs text-slate-500">
+              키를 입력하면 업무지시방에서 팀장들이 Gemini로 실제 답변합니다.
+              미입력 시 기본(비서팀) 응답으로 동작합니다.
+            </p>
+            <div className="mt-2 flex gap-2">
+              <input
+                type="password"
+                value={geminiKey}
+                onChange={(e) => setGeminiKey(e.target.value)}
+                placeholder="Gemini API 키 붙여넣기"
+                className="flex-1 rounded-lg bg-slate-950 px-3 py-2 text-sm ring-1 ring-slate-700 outline-none focus:ring-blue-500"
+              />
+              <button
+                onClick={saveGeminiKey}
+                className="rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-400"
+              >
+                저장
+              </button>
+            </div>
+            <div className="mt-1.5 flex items-center justify-between text-xs">
+              <span className={keySaved ? "text-emerald-400" : "text-slate-500"}>
+                {keySaved
+                  ? "✓ 저장됨 (이 브라우저에만 저장)"
+                  : geminiKey
+                    ? "키 입력됨"
+                    : "키 없음"}
+              </span>
+              {geminiKey && (
+                <button
+                  onClick={clearGeminiKey}
+                  className="text-slate-500 underline hover:text-slate-300"
+                >
+                  삭제
+                </button>
+              )}
+            </div>
+          </div>
+
+          <h2 className="mt-5 text-sm font-bold">📋 할 일판</h2>
           <div className="mt-2 flex gap-2">
             <input
               value={newTask}

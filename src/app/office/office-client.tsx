@@ -8,7 +8,7 @@ import {
   type EmployeeStatus,
   STATUS_META,
 } from "./types";
-import { avatarFor } from "./avatars";
+import { avatarFor, baseFlip } from "./avatars";
 import { BuildingScene } from "./building-scene";
 import { WorkChat } from "./work-chat";
 
@@ -363,6 +363,11 @@ export function OfficeClient() {
                               width={44}
                               height={44}
                               className="size-full rounded-full object-contain"
+                              style={
+                                baseFlip(emp.department_slug)
+                                  ? { transform: "scaleX(-1)" }
+                                  : undefined
+                              }
                             />
                           </span>
                           {emp.emoji && (
