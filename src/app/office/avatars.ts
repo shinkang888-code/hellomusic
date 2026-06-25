@@ -34,14 +34,19 @@ export function avatarFor(departmentSlug: string): string {
   return `/characters/${a}.png`;
 }
 
-// 기준 이미지(_1.png)가 왼쪽(코가 왼쪽)을 보는 부서들.
-// 전문팀(specialized, 오른쪽 보기)을 기준으로 방향을 통일하기 위해,
-// 이 부서들은 기본 표시 시 좌우반전하여 "오른쪽 보기"로 정규화한다.
+// 기준 이미지를 좌우반전(미러링)해야 전문팀(오른쪽 보기)과 같은 방향이 되는 부서들.
+// 전문팀(specialized)을 모델로, 뒤로 걷던 부서들을 반전 처리해 방향을 통일한다.
+// 반전하지 않는(원본 그대로 오른쪽 보기) 부서: specialized, finance, sales, testing
 const LEFT_FACING = new Set([
+  "academic",
+  "design",
+  "engineering",
+  "game-development",
+  "gis",
   "marketing",
   "paid-media",
   "product",
-  "sales",
+  "project-management",
   "security",
   "spatial-computing",
   "support",
