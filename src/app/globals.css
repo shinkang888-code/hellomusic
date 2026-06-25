@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ===== AI 오피스 애니메이션 ===== */
+
+/* 캐릭터 위아래로 살짝 떠다니기 */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.anim-bob { animation: bob 2.4s ease-in-out infinite; }
+
+/* 근무 중(타이핑) 흔들림 */
+@keyframes work-wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+.anim-work { animation: work-wiggle 0.6s ease-in-out infinite; }
+
+/* 상태 링 펄스 */
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 var(--ring-color); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.anim-ring { animation: ring-pulse 2s ease-out infinite; }
+
+/* 장애(error) 깜빡임 */
+@keyframes alert-flash {
+  0%, 100% { background-color: rgba(239, 68, 68, 0.15); }
+  50% { background-color: rgba(239, 68, 68, 0.45); }
+}
+.anim-alert { animation: alert-flash 1s ease-in-out infinite; }
+
+/* 말풍선 페이드 */
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.anim-bubble { animation: bubble-in 0.3s ease-out; }
+
+/* 모니터 화면 깜빡임 */
+@keyframes screen-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.anim-screen { animation: screen-glow 1.8s ease-in-out infinite; }
+
+/* 캐릭터 돌아다니기(서성임) */
+@keyframes walk {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(var(--wx), 0); }
+  40%  { transform: translate(var(--wx), var(--wy)); }
+  60%  { transform: translate(0, var(--wy)); }
+  80%  { transform: translate(calc(var(--wx) * -1), 0); }
+  100% { transform: translate(0, 0); }
+}
+.anim-walk {
+  animation: walk var(--wd, 8s) ease-in-out infinite;
+  animation-delay: var(--wdelay, 0s);
+}
+
+/* 말풍선 */
+@keyframes bubble-pop {
+  0% { opacity: 0; transform: translate(-50%, 4px) scale(0.8); }
+  10% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  90% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -2px) scale(0.95); }
+}
+.speech-bubble {
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+  pointer-events: none;
+  animation: bubble-pop 3s ease-in-out;
+}
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #f8fafc;
+}
+
+/* 빌딩 씬: 캐릭터 좌우 이동(걷기). 양 끝에서 잠깐 멈춤 → 그 순간에 방향 전환 */
+@keyframes pace {
+  0%, 6%      { transform: translateX(0); }
+  44%, 56%    { transform: translateX(var(--range, 60px)); }
+  94%, 100%   { transform: translateX(0); }
+}
+.anim-pace {
+  animation: pace var(--pace-dur, 9s) ease-in-out infinite;
+  animation-delay: var(--pace-delay, 0s);
+}
+/* 진행 방향에 맞춰 얼굴 전면이 향함:
+   pace 가 0%(시작) → 50%(우측 끝 정지) → 100%(시작) 으로 이동.
+   pause 구간(44~56%) 안 50% 에 정확히 일치하도록 face 도 같은 타이밍에 토글. */
+@keyframes face {
+  0%, 49.9%   { transform: scaleX(1); }   /* 우측 진행 → 우측 보기(원본) */
+  50%, 100%   { transform: scaleX(-1); }  /* 좌측 진행 → 좌측 보기 */
+}
+.anim-face {
+  animation: face var(--pace-dur, 9s) linear infinite;
+  animation-delay: var(--pace-delay, 0s);
+  display: inline-block;
+  transform-origin: center bottom;
+}
+
+/* 부서 뷰용: anim-walk(--wx)의 X 위상에 따른 방향 전환
+   anim-walk 키프레임 → 20%:+x, 40~60%:+x, 80%:-x 이므로
+   대략 0–60%(오른쪽 진행+머무름) → 우측, 60–100%(왼쪽 진행) → 좌측 */
+@keyframes face-walk {
+  0%, 59.9%   { transform: scaleX(1); }
+  60%, 100%   { transform: scaleX(-1); }
+}
+.anim-face-walk {
+  animation: face-walk var(--wd, 8s) linear infinite;
+  animation-delay: var(--wdelay, 0s);
+  display: inline-block;
+  transform-origin: center bottom;
+}
+
+/* 빌딩 씬 말풍선 (상시) */
+.bubble-floor {
+  position: absolute;
+  bottom: 108%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 30;
+  pointer-events: none;
+  animation: bubble-pop 4s ease-in-out;
+}
+.bubble-floor::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #f8fafc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-bob, .anim-work, .anim-ring, .anim-alert, .anim-bubble,
+  .anim-screen, .anim-walk, .speech-bubble, .anim-pace, .anim-face,
+  .bubble-floor {
+    animation: none;
+  }
+}
