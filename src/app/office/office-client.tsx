@@ -14,6 +14,7 @@ import { avatarFor, baseFlip } from "./avatars";
 import { BuildingScene } from "./building-scene";
 import { AcademyCounselChat } from "./academy-counsel-chat";
 import { AcademyInfoModal } from "./academy-info-modal";
+import { HelloManagerButton } from "./hello-manager-button";
 import { DeptProfileEditor } from "./dept-profile-editor";
 import { deptRealAvatarUrl } from "./resize-avatar";
 
@@ -286,6 +287,7 @@ export function OfficeClient() {
           >
             📝 Blog
           </a>
+          <HelloManagerButton />
           <button
             type="button"
             onClick={() => setInfoOpen(true)}
