@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const MODEL = "gemini-2.0-flash";
+// gemini-2.0-flash는 이 키의 무료 한도가 0이라 429가 떠서 매번 폴백됨.
+// 실제로 응답이 오는 2.5-flash 사용. env로 덮어쓸 수 있음.
+const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
 type LinkItem = { label: string; url: string };
