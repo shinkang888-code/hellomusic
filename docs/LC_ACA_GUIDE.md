@@ -12,7 +12,7 @@ LC Academy는 lonex AI 오피스 플랫폼을 **학원 관리**에 맞게 변형
 |------|------|
 | 리포 | https://github.com/shinkang888-code/lc_aca |
 | 배포 | https://lc-aca.vercel.app |
-| DB | Neon PostgreSQL (lc_aca 전용) |
+| DB | Neon PostgreSQL (`lc-aca` · project: `holy-sky-84062412`) |
 | 상위 리포 | lonex_client → lonex (마스터) |
 
 ---
