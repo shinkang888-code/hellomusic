@@ -91,7 +91,32 @@ async function main() {
     )
   `;
 
-  console.log("LC Academy DB 스키마 초기화 완료");
+  await sql`
+    CREATE TABLE IF NOT EXISTS academy_info (
+      id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+      public_notice TEXT NOT NULL DEFAULT '',
+      private_notes TEXT NOT NULL DEFAULT '',
+      blog_url TEXT,
+      blog_cache TEXT,
+      blog_cache_at TIMESTAMPTZ,
+      updated_by TEXT,
+      updated_at TIMESTAMPTZ DEFAULT now()
+    )
+  `;
+
+  const infoRows = await sql`SELECT id FROM academy_info WHERE id = 1`;
+  if (infoRows.length === 0) {
+    await sql`
+      INSERT INTO academy_info (id, public_notice, blog_url)
+      VALUES (
+        1,
+        '【공지되는 게시글】\nHello Music Academy · 헬로뮤직 피아노 전문 학원\n\n· 1:1 맞춤 피아노 레슨\n· 체험·상담: 02-555-2040\n· Blog: https://blog.naver.com/hellomusic0104',
+        'https://blog.naver.com/hellomusic0104'
+      )
+    `;
+  }
+
+  console.log("LC Academy DB 스키마 초기화 완료 (academy_info 포함)");
 }
 
 main().catch((e) => {

@@ -1,3 +1,4 @@
+import Script from "next/script";
 import { Nav } from "../components/nav";
 import { OfficeClient } from "./office-client";
 
@@ -10,6 +11,10 @@ export const metadata = {
 export default function OfficePage() {
   return (
     <main className="flex-1 bg-page text-main">
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="lazyOnload"
+      />
       <Nav active="office" />
       <OfficeClient />
     </main>

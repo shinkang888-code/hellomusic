@@ -12,7 +12,8 @@ import {
 } from "./types";
 import { avatarFor, baseFlip } from "./avatars";
 import { BuildingScene } from "./building-scene";
-import { WorkChat } from "./work-chat";
+import { AcademyCounselChat } from "./academy-counsel-chat";
+import { AcademyInfoModal } from "./academy-info-modal";
 import { DeptProfileEditor } from "./dept-profile-editor";
 import { deptRealAvatarUrl } from "./resize-avatar";
 
@@ -64,6 +65,7 @@ export function OfficeClient() {
   const [talking, setTalking] = useState<Set<number>>(new Set());
   const [view, setView] = useState<"building" | "grid">("building");
   const [chatOpen, setChatOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
   const [avatarVersions, setAvatarVersions] = useState<Record<string, number>>(
     {},
@@ -234,7 +236,7 @@ export function OfficeClient() {
             원장 &gt; 팀장 &gt; 직원
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           <div className="flex gap-2 text-xs">
             <Stat label="근무" value={data.stats.working} dot="bg-emerald-400" />
             <Stat label="회의" value={data.stats.meeting} dot="bg-blue-400" />
@@ -245,7 +247,7 @@ export function OfficeClient() {
               onClick={() => setView("building")}
               className={`px-3 py-2 text-xs font-semibold transition ${
                 view === "building"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-[#9B2335] text-white"
                   : "bg-card text-sub hover:bg-elevated-hover"
               }`}
             >
@@ -255,7 +257,7 @@ export function OfficeClient() {
               onClick={() => setView("grid")}
               className={`px-3 py-2 text-xs font-semibold transition ${
                 view === "grid"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-[#9B2335] text-white"
                   : "bg-card text-sub hover:bg-elevated-hover"
               }`}
             >
@@ -264,10 +266,18 @@ export function OfficeClient() {
           </div>
           <button
             onClick={() => setChatOpen(true)}
-            className="rounded-lg bg-yellow-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-yellow-300"
+            className="rounded-lg bg-[#9B2335] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#7a1c2a]"
           >
-            💬 업무지시방
+            🎹 학원상담
           </button>
+          <a
+            href="https://grend.grend.kr/login"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-[#1e2a4a] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d3f6b]"
+          >
+            🎼 그렌드
+          </a>
           <a
             href="https://blog.naver.com/hellomusic0104"
             target="_blank"
@@ -276,6 +286,13 @@ export function OfficeClient() {
           >
             📝 Blog
           </a>
+          <button
+            type="button"
+            onClick={() => setInfoOpen(true)}
+            className="rounded-lg bg-[#B8860B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#9a7209]"
+          >
+            📋 학원정보
+          </button>
           <Link
             href="/control-tower"
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
@@ -330,8 +347,8 @@ export function OfficeClient() {
             onSelect={setSelected}
           />
           <p className="mt-2 text-center text-xs text-muted">
-            각 구역 팀장·직원이 1층 평면도에서 실시간 활동합니다 · 캐릭터를 클릭하면
-            업무를 지시할 수 있어요
+            각 구역 팀장·직원이 1층 평면도에서 실시간 활동합니다 · 🎹 학원상담으로
+            원장님에게 레슨·입학 문의를 남길 수 있어요
           </p>
           <div className="mt-4 rounded-xl border border-theme bg-card p-3">
             <h3 className="text-xs font-bold text-sub">🛰 실시간 활동</h3>
@@ -478,14 +495,10 @@ export function OfficeClient() {
         </aside>
       </div>
 
-      {/* 업무지시방 (카카오톡 스타일 채팅) */}
-      {chatOpen && (
-        <WorkChat
-          departments={data.departments}
-          employees={data.employees}
-          onClose={() => setChatOpen(false)}
-        />
-      )}
+      {/* 학원상담 (카카오톡 스타일 · 원장 AI) */}
+      <AcademyCounselChat open={chatOpen} onClose={() => setChatOpen(false)} />
+
+      <AcademyInfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
 
       {/* 부서 실무 담당 프로필 편집 */}
       {editingDept && (
