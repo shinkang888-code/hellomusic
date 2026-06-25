@@ -27,26 +27,31 @@ export async function POST(req: Request) {
     }
 
     const label = deptLabel || "담당";
-    const sys = `너는 Lonex AI 컴퍼니의 '${label}' 팀장이다. 역할: ${role || label} 전문가.
-대표(사용자)의 업무 지시·질문에 대해 너의 부서 전문성으로 정확히 답한다.
-규칙:
-- 반드시 한국어로 답한다.
-- summary: 결론부터 한 문장으로 명확히.
-- detail: 2~3문장으로 구체적 실행 계획 또는 근거.
-- links: 질문과 직접 관련된 실제 사이트 1~3개(label, url). url은 https로 시작하는 실재하는 도메인만.
-- 지시와 무관한 엉뚱한 답을 절대 하지 말 것. 모르면 모른다고 하고 비서팀 연결을 제안한다.`;
+    const sys = `너는 Lonex AI 컴퍼니의 '${label}' 팀장이자 실무 전문가다. 역할: ${role || label}.
+대표(사용자)의 업무 지시·질문에 ChatGPT/Gemini처럼 충실하고 구체적인 한국어 본문으로 답한다.
+
+출력 규칙:
+- summary: 핵심 결론을 한 문장으로.
+- body: 실제로 바로 사용할 수 있는 완성된 답변 본문. 마크다운 사용(제목 #, 굵게 **, 목록 -, 표 |...|).
+  - 개발명세서/기획서/요구사항/계획을 요청하면 반드시 문서 형태로 상세히 작성한다.
+    예) 제목 → 1. 개요/목적 → 2. 범위 → 3. 기능 요구사항 → 4. 비기능 요구사항 → 5. 데이터/API 설계 → 6. 화면/플로우 → 7. 일정 → 8. 리스크 순으로 섹션 구성.
+  - 표가 도움이 되면 마크다운 표를 적극 사용한다.
+  - 분량은 질문에 맞게 충분히 길게(개발명세서는 최소 400자 이상) 작성한다.
+- links: 본문과 직접 관련되며 "실제로 존재하는 유명 사이트"만 0~3개. 확신이 없으면 빈 배열([])로 둔다. URL을 절대 지어내지 말 것. (예: nextjs.org, github.com, figma.com 같은 루트 도메인만)
+- 지시와 무관한 엉뚱한 답을 하지 말 것.`;
 
     const body = {
       systemInstruction: { parts: [{ text: sys }] },
       contents: [{ role: "user", parts: [{ text: message }] }],
       generationConfig: {
-        temperature: 0.6,
+        temperature: 0.7,
+        maxOutputTokens: 4096,
         responseMimeType: "application/json",
         responseSchema: {
           type: "object",
           properties: {
             summary: { type: "string" },
-            detail: { type: "string" },
+            body: { type: "string" },
             links: {
               type: "array",
               items: {
@@ -59,7 +64,7 @@ export async function POST(req: Request) {
               },
             },
           },
-          required: ["summary", "detail"],
+          required: ["summary", "body"],
         },
       },
     };
@@ -89,26 +94,39 @@ export async function POST(req: Request) {
     };
     const text = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
-    let parsed: { summary?: string; detail?: string; links?: LinkItem[] } | null =
-      null;
+    let parsed:
+      | { summary?: string; body?: string; links?: LinkItem[] }
+      | null = null;
     try {
       parsed = JSON.parse(text);
     } catch {
       parsed = null;
     }
 
-    if (!parsed?.summary) {
+    if (!parsed?.summary && !parsed?.body) {
       return NextResponse.json({
-        summary: text || "응답을 생성하지 못했습니다.",
-        detail: "",
+        summary: "",
+        body: text || "응답을 생성하지 못했습니다.",
         links: [],
       });
     }
 
+    // 깨진/지어낸 링크 방지: https + 도메인 형태만 통과
+    const links = (Array.isArray(parsed.links) ? parsed.links : [])
+      .filter(
+        (l) =>
+          l &&
+          typeof l.url === "string" &&
+          /^https:\/\/[a-z0-9.-]+\.[a-z]{2,}/i.test(l.url.trim()) &&
+          typeof l.label === "string" &&
+          l.label.trim().length > 0,
+      )
+      .slice(0, 3);
+
     return NextResponse.json({
-      summary: parsed.summary,
-      detail: parsed.detail ?? "",
-      links: Array.isArray(parsed.links) ? parsed.links.slice(0, 3) : [],
+      summary: parsed.summary ?? "",
+      body: parsed.body ?? "",
+      links,
     });
   } catch (e) {
     console.error("[api/chat]", e);

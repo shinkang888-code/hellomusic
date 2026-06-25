@@ -197,10 +197,165 @@ type ChatMessage = {
   id: number;
   role: "me" | "leader";
   leader?: Leader;
-  text: string;
+  text: string; // 마크다운 원본
   links?: LinkItem[];
   time: string;
+  wordable?: boolean; // 워드 저장 가능
+  title?: string; // 워드 파일/문서 제목
 };
+
+// ── 마크다운 → HTML (채팅 버블 & 워드 공용) ─────────────────────
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function inlineMd(s: string): string {
+  let t = escapeHtml(s);
+  t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+  t = t.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>");
+  t = t.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noreferrer">$1</a>',
+  );
+  return t;
+}
+
+function mdToHtml(md: string): string {
+  const lines = (md || "").replace(/\r\n/g, "\n").split("\n");
+  const out: string[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // 표
+    if (
+      /^\s*\|.*\|\s*$/.test(line) &&
+      i + 1 < lines.length &&
+      /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i + 1]) &&
+      lines[i + 1].includes("-")
+    ) {
+      const header = line
+        .trim()
+        .replace(/^\||\|$/g, "")
+        .split("|")
+        .map((c) => c.trim());
+      i += 2;
+      const rows: string[][] = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        rows.push(
+          lines[i]
+            .trim()
+            .replace(/^\||\|$/g, "")
+            .split("|")
+            .map((c) => c.trim()),
+        );
+        i++;
+      }
+      let tbl =
+        "<table><thead><tr>" +
+        header.map((h) => `<th>${inlineMd(h)}</th>`).join("") +
+        "</tr></thead><tbody>";
+      for (const r of rows)
+        tbl += "<tr>" + r.map((c) => `<td>${inlineMd(c)}</td>`).join("") + "</tr>";
+      tbl += "</tbody></table>";
+      out.push(tbl);
+      continue;
+    }
+
+    const h = /^(#{1,6})\s+(.*)$/.exec(line);
+    if (h) {
+      const lvl = Math.min(h[1].length, 4);
+      out.push(`<h${lvl}>${inlineMd(h[2])}</h${lvl}>`);
+      i++;
+      continue;
+    }
+
+    if (/^\s*[-*+]\s+/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^\s*[-*+]\s+/.test(lines[i])) {
+        items.push(`<li>${inlineMd(lines[i].replace(/^\s*[-*+]\s+/, ""))}</li>`);
+        i++;
+      }
+      out.push(`<ul>${items.join("")}</ul>`);
+      continue;
+    }
+
+    if (/^\s*\d+[.)]\s+/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) {
+        items.push(`<li>${inlineMd(lines[i].replace(/^\s*\d+[.)]\s+/, ""))}</li>`);
+        i++;
+      }
+      out.push(`<ol>${items.join("")}</ol>`);
+      continue;
+    }
+
+    if (line.trim() === "") {
+      i++;
+      continue;
+    }
+
+    const para: string[] = [];
+    while (
+      i < lines.length &&
+      lines[i].trim() !== "" &&
+      !/^(#{1,6})\s+/.test(lines[i]) &&
+      !/^\s*[-*+]\s+/.test(lines[i]) &&
+      !/^\s*\d+[.)]\s+/.test(lines[i]) &&
+      !/^\s*\|.*\|\s*$/.test(lines[i])
+    ) {
+      para.push(inlineMd(lines[i]));
+      i++;
+    }
+    out.push(`<p>${para.join("<br/>")}</p>`);
+  }
+  return out.join("\n");
+}
+
+function downloadWord(title: string, md: string, links?: LinkItem[]) {
+  let inner = mdToHtml(md);
+  if (links && links.length) {
+    inner +=
+      "<h3>참고 링크</h3><ul>" +
+      links
+        .map(
+          (l) =>
+            `<li><a href="${l.url}">${escapeHtml(l.label)}</a> — ${escapeHtml(
+              l.url,
+            )}</li>`,
+        )
+        .join("") +
+      "</ul>";
+  }
+  const html = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${escapeHtml(
+    title,
+  )}</title><style>
+    body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:11pt;line-height:1.6;color:#222;}
+    h1{font-size:20pt;} h2{font-size:15pt;border-bottom:1px solid #ccc;padding-bottom:4px;} h3{font-size:12.5pt;} h4{font-size:11.5pt;}
+    table{border-collapse:collapse;width:100%;margin:8px 0;} th,td{border:1px solid #999;padding:6px 8px;font-size:10.5pt;text-align:left;} th{background:#f0f3f7;}
+    ul,ol{margin:6px 0 6px 18px;} code{background:#f2f2f2;padding:1px 4px;border-radius:3px;font-family:Consolas,monospace;}
+  </style></head><body>${inner}</body></html>`;
+  const blob = new Blob(["\ufeff" + html], { type: "application/msword" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const safe = (title || "lonex-문서")
+    .replace(/[\\/:*?"<>|]/g, "_")
+    .slice(0, 60)
+    .trim();
+  a.download = `${safe || "lonex-문서"}.doc`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function firstLine(s: string): string {
+  const t = (s || "").replace(/[#*`>-]/g, "").trim();
+  const nl = t.indexOf("\n");
+  return (nl === -1 ? t : t.slice(0, nl)).slice(0, 50);
+}
 
 function now(): string {
   const d = new Date();
@@ -277,22 +432,19 @@ export function WorkChat({
 
   function pushReply(
     leader: Leader,
-    summary: string,
-    detail: string,
+    text: string,
     links: LinkItem[],
+    title: string,
   ) {
-    const replyText = detail
-      ? `결론부터 말씀드리면, ${summary}\n\n📌 ${detail}`
-      : `결론부터 말씀드리면, ${summary}`;
     const reply: ChatMessage = {
       id: idRef.current++,
       role: "leader",
       leader,
-      text: links.length
-        ? `${replyText}\n\n🔎 관련 자료를 아래 링크로 정리했습니다.`
-        : replyText,
+      text,
       links,
       time: now(),
+      wordable: true,
+      title,
     };
     setMessages((prev) => [...prev, reply]);
     setLoadingLeader(null);
@@ -318,7 +470,7 @@ export function WorkChat({
 
     const brain = DEPT_BRAIN[slug] ?? DEPT_BRAIN[FALLBACK_SLUG];
 
-    // Gemini 키가 있으면 실제 AI 답변 시도, 실패하면 기본 답변으로 폴백
+    // Gemini로 본문(텍스트) 답변 시도, 실패하면 기본 답변으로 폴백
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -333,16 +485,21 @@ export function WorkChat({
       if (res.ok) {
         const data = (await res.json()) as {
           summary?: string;
-          detail?: string;
+          body?: string;
           links?: LinkItem[];
           error?: string;
         };
-        if (data.summary) {
+        const bodyText = (data.body ?? "").trim() || (data.summary ?? "").trim();
+        if (bodyText) {
+          const title =
+            (data.summary ?? "").trim() ||
+            firstLine(bodyText) ||
+            `${leader.label} 답변`;
           pushReply(
             leader,
-            data.summary,
-            data.detail ?? "",
+            bodyText,
             Array.isArray(data.links) ? data.links : [],
+            title,
           );
           return;
         }
@@ -353,7 +510,8 @@ export function WorkChat({
 
     // 폴백: 부서 기본 답변(키 미설정/오류 시)
     window.setTimeout(() => {
-      pushReply(leader, brain.summary, brain.detail, brain.links);
+      const fbText = `**${brain.summary}**\n\n${brain.detail}`;
+      pushReply(leader, fbText, brain.links, brain.summary);
     }, 600);
   }
 
@@ -497,8 +655,11 @@ function LeaderMessage({ msg }: { msg: ChatMessage }) {
           {leader.label} · {leader.name}
         </span>
         <div className="flex items-end gap-1.5">
-          <div className="kk-bubble-other rounded-2xl bg-white px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-slate-900 shadow-sm">
-            {msg.text}
+          <div className="kk-bubble-other rounded-2xl bg-white px-3.5 py-2.5 text-sm leading-relaxed text-slate-900 shadow-sm">
+            <div
+              className="kk-md"
+              dangerouslySetInnerHTML={{ __html: mdToHtml(msg.text) }}
+            />
             {msg.links && msg.links.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {msg.links.map((lk) => (
@@ -513,6 +674,20 @@ function LeaderMessage({ msg }: { msg: ChatMessage }) {
                   </a>
                 ))}
               </div>
+            )}
+            {msg.wordable && (
+              <button
+                onClick={() =>
+                  downloadWord(
+                    msg.title || `${leader.label} 문서`,
+                    msg.text,
+                    msg.links,
+                  )
+                }
+                className="mt-2.5 inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-blue-500"
+              >
+                📄 워드로 저장
+              </button>
             )}
           </div>
           <span className="shrink-0 text-[10px] text-slate-600">{msg.time}</span>

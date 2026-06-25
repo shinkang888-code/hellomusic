@@ -211,6 +211,51 @@ body {
   border-color: transparent transparent transparent #fee500;
 }
 
+/* 팀장 답변 본문(마크다운) */
+.kk-md {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  word-break: break-word;
+}
+.kk-md > :first-child { margin-top: 0; }
+.kk-md > :last-child { margin-bottom: 0; }
+.kk-md h1, .kk-md h2, .kk-md h3, .kk-md h4 {
+  font-weight: 700;
+  margin: 8px 0 4px;
+  line-height: 1.3;
+}
+.kk-md h1 { font-size: 1.05rem; }
+.kk-md h2 { font-size: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; }
+.kk-md h3 { font-size: 0.95rem; }
+.kk-md h4 { font-size: 0.9rem; }
+.kk-md p { margin: 4px 0; }
+.kk-md ul { list-style: disc; margin: 4px 0 4px 18px; }
+.kk-md ol { list-style: decimal; margin: 4px 0 4px 18px; }
+.kk-md li { margin: 1px 0; }
+.kk-md strong { font-weight: 700; }
+.kk-md em { font-style: italic; }
+.kk-md code {
+  background: #eef1f4;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: Consolas, "Courier New", monospace;
+}
+.kk-md a { color: #2563eb; text-decoration: underline; }
+.kk-md table {
+  border-collapse: collapse;
+  margin: 6px 0;
+  width: 100%;
+}
+.kk-md th, .kk-md td {
+  border: 1px solid #cbd5e1;
+  padding: 3px 6px;
+  font-size: 0.78rem;
+  text-align: left;
+  vertical-align: top;
+}
+.kk-md th { background: #eef2f7; font-weight: 600; }
+
 /* "검색 중" 로딩 점 */
 @keyframes kk-blink {
   0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
