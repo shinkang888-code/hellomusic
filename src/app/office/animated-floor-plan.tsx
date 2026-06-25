@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { FLOOR_ROOMS } from "./floor-plan-rooms";
 
 /** HELLO Music Academy — 이소메트릭 럭셔리 평면도 (참조 디자인 기반) */
 
@@ -52,25 +51,29 @@ export function AnimatedFloorPlan() {
           </g>
         ))}
 
-        {/* 방 라벨 (골드 타이포) */}
-        {FLOOR_ROOMS.map((room) => {
-          const x = (room.left / 100) * 1000;
-          const y = (room.top / 100) * 620 + 28;
-          return (
-            <text
-              key={room.id}
-              x={x}
-              y={y}
-              textAnchor="middle"
-              className="hello-iso-room-label"
-              fontSize={9}
-              fontWeight={600}
-              letterSpacing={1.2}
-            >
-              {room.labelKo.toUpperCase()}
-            </text>
-          );
-        })}
+        {/* 방 라벨 */}
+        {[
+          { label: "AI 작곡실", x: 15, y: 18 },
+          { label: "프로덕션", x: 13, y: 52 },
+          { label: "스마트 연습실", x: 41, y: 54 },
+          { label: "커뮤니티", x: 73, y: 52 },
+          { label: "녹음실", x: 81, y: 34 },
+          { label: "멘토 라운지", x: 83, y: 16 },
+          { label: "그랜드 허브", x: 49, y: 36 },
+        ].map((room) => (
+          <text
+            key={room.label}
+            x={(room.x / 100) * 1000}
+            y={(room.y / 100) * 620 + 28}
+            textAnchor="middle"
+            className="hello-iso-room-label"
+            fontSize={9}
+            fontWeight={600}
+            letterSpacing={1.2}
+          >
+            {room.label.toUpperCase()}
+          </text>
+        ))}
       </svg>
 
       <div className="hello-iso-banner pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-3">

@@ -1,6 +1,9 @@
 import agency from "@/data/agency.json";
 import type { CompanyData, Department, Employee } from "./types";
-import { FLOOR_ROOMS, type FloorRoom } from "./floor-plan-rooms";
+import {
+  FLOOR_CHARACTERS,
+  type FloorCharacterSlot,
+} from "./floor-plan-characters";
 
 const DIVISIONS = agency.divisions as Record<
   string,
@@ -20,39 +23,32 @@ export const DEMO_DEPARTMENTS: Department[] = Object.entries(DIVISIONS).map(
   }),
 );
 
-export function demoEmployeeForRoom(room: FloorRoom, index: number): Employee {
-  const d = room.demo;
+export function demoEmployeeForSlot(
+  slot: FloorCharacterSlot,
+  index: number,
+): Employee {
   return {
     id: 9000 + index,
-    slug: d.slug,
-    department_slug: room.zone,
-    name: d.name,
-    description: `${room.labelKo} · ${room.label}`,
-    color: DIVISIONS[room.zone]?.color ?? "#C9A962",
-    emoji: d.emoji,
-    vibe: room.chitchat[0],
-    status: d.status,
+    slug: slot.slug,
+    department_slug: slot.zone,
+    name: slot.name,
+    description: `${slot.scene} · ${slot.roleLabel}`,
+    color: DIVISIONS[slot.zone]?.color ?? "#C9A962",
+    emoji: null,
+    vibe: slot.chitchat[0],
+    status: slot.status,
     current_task: null,
   };
 }
 
-/** 방별 DB 직원 매칭 — slug 일치 우선, 없으면 zone 풀 */
-export function resolveRoomEmployee(
-  room: FloorRoom,
+export function resolveFloorCharacter(
+  slot: FloorCharacterSlot,
   employees: Employee[],
-  zoneIndex: Map<string, number>,
+  index: number,
 ): Employee {
-  const bySlug = employees.find((e) => e.slug === room.demo.slug);
+  const bySlug = employees.find((e) => e.slug === slot.slug);
   if (bySlug) return bySlug;
-
-  const pool = employees.filter((e) => e.department_slug === room.zone);
-  if (pool.length > 0) {
-    const idx = zoneIndex.get(room.zone) ?? 0;
-    zoneIndex.set(room.zone, idx + 1);
-    return pool[idx % pool.length];
-  }
-
-  return demoEmployeeForRoom(room, FLOOR_ROOMS.indexOf(room));
+  return demoEmployeeForSlot(slot, index);
 }
 
 export function isDemoMode(employees: Employee[]): boolean {
@@ -61,7 +57,9 @@ export function isDemoMode(employees: Employee[]): boolean {
 
 /** API·DB 실패 시 office 전체 폴백 */
 export function getDemoCompanyData(): CompanyData {
-  const employees = FLOOR_ROOMS.map((room, i) => demoEmployeeForRoom(room, i));
+  const employees = FLOOR_CHARACTERS.map((slot, i) =>
+    demoEmployeeForSlot(slot, i),
+  );
   return {
     departments: DEMO_DEPARTMENTS,
     employees,

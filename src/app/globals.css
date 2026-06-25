@@ -605,8 +605,8 @@ body {
 }
 
 @keyframes chibi-idle {
-  0%, 100% { transform: rotate(-1deg) translateY(0); }
-  50% { transform: rotate(1deg) translateY(-2px); }
+  0%, 100% { transform: rotate(-0.8deg) translateY(0); }
+  50% { transform: rotate(0.8deg) translateY(-2px); }
 }
 
 .anim-chibi-head {
@@ -617,22 +617,22 @@ body {
 }
 
 @keyframes chibi-head {
-  0%, 100% { transform: rotate(-2.5deg); }
-  25% { transform: rotate(0deg); }
-  75% { transform: rotate(2.5deg); }
+  0%, 100% { transform: rotate(-2deg); }
+  30% { transform: rotate(1deg); }
+  70% { transform: rotate(2deg); }
 }
 
 .anim-chibi-arm {
   animation: chibi-arm var(--gesture-dur, 2.4s) ease-in-out infinite;
   animation-delay: var(--gesture-delay, 0s);
-  transform-origin: 50% 75%;
+  transform-origin: 50% 72%;
   display: inline-block;
 }
 
 @keyframes chibi-arm {
   0%, 100% { transform: rotate(0deg) translateY(0); }
-  35% { transform: rotate(-3deg) translateY(-1px); }
-  65% { transform: rotate(3deg) translateY(-2px); }
+  40% { transform: rotate(-2.5deg) translateY(-1px); }
+  70% { transform: rotate(2.5deg) translateY(-2px); }
 }
 
 .bubble-floor-hello {
