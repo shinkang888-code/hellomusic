@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   title: "Hello Music Academy — 헬로뮤직 피아노 전문 학원",
   description:
     "헬로뮤직 피아노 학원. 1:1 레슨, 그랜드 스튜디오, AI 학원관리(HelloManager). Play. Learn. Grow.",
+  icons: {
+    icon: [{ url: "/aca-favicon.png", type: "image/png" }],
+    apple: [{ url: "/aca-favicon.png", type: "image/png" }],
+    shortcut: "/aca-favicon.png",
+  },
 };
 
 export default function RootLayout({
