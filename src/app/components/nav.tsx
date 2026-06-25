@@ -4,13 +4,14 @@ import Link from "next/link";
 export function Nav({
   active,
 }: {
-  active?: "home" | "about" | "services" | "contact" | "office" | "console";
+  active?: "home" | "about" | "services" | "contact" | "office" | "console" | "control-tower";
 }) {
   const items = [
     { href: "/", label: "홈", key: "home" },
     { href: "/about", label: "회사 소개", key: "about" },
     { href: "/services", label: "사업 영역", key: "services" },
     { href: "/office", label: "🏢 AI 오피스", key: "office" },
+    { href: "/control-tower", label: "🛰 LogShield", key: "control-tower" },
     { href: "/console", label: "🎛 관리 콘솔", key: "console" },
     { href: "/contact", label: "문의", key: "contact" },
   ] as const;

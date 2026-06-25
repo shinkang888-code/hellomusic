@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type CompanyData,
+  type Department,
   type Employee,
   type EmployeeStatus,
   STATUS_META,
@@ -11,6 +13,8 @@ import {
 import { avatarFor, baseFlip } from "./avatars";
 import { BuildingScene } from "./building-scene";
 import { WorkChat } from "./work-chat";
+import { DeptProfileEditor } from "./dept-profile-editor";
+import { deptRealAvatarUrl } from "./resize-avatar";
 
 type EventItem = { id: number; ts: string; actor: string | null; message: string };
 
@@ -62,6 +66,10 @@ export function OfficeClient() {
   const [talking, setTalking] = useState<Set<number>>(new Set());
   const [view, setView] = useState<"building" | "grid">("building");
   const [chatOpen, setChatOpen] = useState(false);
+  const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [avatarVersions, setAvatarVersions] = useState<Record<string, number>>(
+    {},
+  );
 
   const load = useCallback(async () => {
     const [c, e] = await Promise.all([
@@ -139,6 +147,34 @@ export function OfficeClient() {
     setSelected((prev) =>
       prev && prev.id === id ? { ...prev, ...patch } : prev,
     );
+  }
+
+  function saveDeptProfile(
+    slug: string,
+    patch: {
+      real_member_name: string | null;
+      has_real_avatar: boolean;
+      avatarVersion: number;
+    },
+  ) {
+    setAvatarVersions((prev) => ({ ...prev, [slug]: patch.avatarVersion }));
+    setData((prev) =>
+      prev
+        ? {
+            ...prev,
+            departments: prev.departments.map((d) =>
+              d.slug === slug
+                ? {
+                    ...d,
+                    real_member_name: patch.real_member_name,
+                    has_real_avatar: patch.has_real_avatar,
+                  }
+                : d,
+            ),
+          }
+        : prev,
+    );
+    load();
   }
 
   if (loading) {
@@ -233,12 +269,27 @@ export function OfficeClient() {
           >
             💬 업무지시방
           </button>
+          <a
+            href="https://grend.grend.kr/login"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+          >
+            [그렌드]
+          </a>
+          <Link
+            href="/control-tower"
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
+          >
+            🛰 LogShield 관제탑
+          </Link>
           <button
             onClick={runControlTower}
             disabled={checking}
-            className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-400 disabled:opacity-50"
+            title="가용성만 빠르게 점검 (전체 보안 점검은 관제탑에서)"
+            className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 ring-1 ring-slate-700 transition hover:bg-slate-700 disabled:opacity-50"
           >
-            {checking ? "🛰 점검 중…" : "🛰 관제탑 사이트 점검"}
+            {checking ? "점검 중…" : "빠른 점검"}
           </button>
         </div>
       </div>
@@ -327,59 +378,80 @@ export function OfficeClient() {
                 {emps.length === 0 ? (
                   <p className="text-xs text-slate-600">배정된 팀원이 없습니다.</p>
                 ) : (
-                <div className="flex flex-wrap gap-1.5">
-                  {emps.slice(0, 1).map((emp) => {
-                    const meta = STATUS_META[emp.status];
-                    return (
-                      <div
-                        key={emp.id}
-                        className="anim-walk relative"
-                        style={walkVars(emp.id)}
-                      >
-                        {talking.has(emp.id) && (
-                          <span className="speech-bubble">{chatFor(emp)}</span>
-                        )}
-                        <button
-                          onClick={() => setSelected(emp)}
-                          title={`${emp.name} · ${meta.label}`}
-                          className="group relative flex size-11 items-center justify-center overflow-visible rounded-full bg-slate-800 ring-2 transition hover:z-10 hover:scale-110 anim-ring"
-                          style={
-                            {
-                              "--ring-color": `${meta.ring}66`,
-                              borderColor: meta.ring,
-                            } as React.CSSProperties
-                          }
-                        >
-                          {/* 얼굴(머리)만 보이도록 상단으로 줌인 크롭 — 원형으로 클리핑 */}
-                          <span className="flex size-full items-center justify-center overflow-hidden rounded-full">
+                  <div className="space-y-2.5">
+                    {/* AI 팀장 (캐릭터) */}
+                    {(() => {
+                      const aiLeader = emps[0];
+                      const meta = STATUS_META[aiLeader.status];
+                      return (
+                        <div className="flex items-center gap-2 rounded-lg bg-slate-950/40 px-2 py-1.5">
+                          <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-800 ring-2"
+                            style={{ borderColor: meta.ring }}>
                             <Image
-                              src={avatarFor(emp.department_slug)}
-                              alt={emp.name}
-                              width={44}
-                              height={44}
+                              src={avatarFor(dept.slug)}
+                              alt={aiLeader.name}
+                              width={36}
+                              height={36}
                               className="size-full rounded-full object-cover"
                               style={{
                                 objectPosition: "50% 6%",
                                 transformOrigin: "50% 8%",
                                 transform: `scale(2.6)${
-                                  baseFlip(emp.department_slug) ? " scaleX(-1)" : ""
+                                  baseFlip(dept.slug) ? " scaleX(-1)" : ""
                                 }`,
                               }}
                             />
                           </span>
-                          {emp.emoji && (
-                            <span className="absolute -top-1 -left-1 text-xs drop-shadow">
-                              {emp.emoji}
-                            </span>
-                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-semibold text-slate-500">
+                              🤖 AI 팀장
+                            </p>
+                            <p className="truncate text-xs text-slate-300">
+                              {aiLeader.name}
+                            </p>
+                          </div>
                           <span
-                            className={`absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full ring-2 ring-slate-900 ${meta.dot}`}
+                            className={`size-2 shrink-0 rounded-full ${meta.dot}`}
+                            title={meta.label}
                           />
-                        </button>
+                        </div>
+                      );
+                    })()}
+
+                    {/* 실무 담당 (실제 직원) */}
+                    <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-700/80 bg-slate-950/20 px-2 py-1.5">
+                      <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-800 ring-2 ring-blue-500/40">
+                        {dept.has_real_avatar ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={deptRealAvatarUrl(
+                              dept.slug,
+                              avatarVersions[dept.slug],
+                            )}
+                            alt={dept.real_member_name ?? "실무 담당"}
+                            className="size-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-lg text-slate-500">👤</span>
+                        )}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-semibold text-blue-300/90">
+                          👤 실무 담당
+                        </p>
+                        <p className="truncate text-xs text-slate-200">
+                          {dept.real_member_name || "미등록"}
+                        </p>
                       </div>
-                    );
-                  })}
-                </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditingDept(dept)}
+                        className="shrink-0 rounded-md bg-blue-500/15 px-2 py-1 text-[10px] font-semibold text-blue-300 ring-1 ring-blue-500/30 transition hover:bg-blue-500/25"
+                      >
+                        편집
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             );
@@ -411,6 +483,19 @@ export function OfficeClient() {
           departments={data.departments}
           employees={data.employees}
           onClose={() => setChatOpen(false)}
+        />
+      )}
+
+      {/* 부서 실무 담당 프로필 편집 */}
+      {editingDept && (
+        <DeptProfileEditor
+          department={editingDept}
+          aiLeaderName={
+            byDept.get(editingDept.slug)?.[0]?.name ?? editingDept.label
+          }
+          avatarVersion={avatarVersions[editingDept.slug]}
+          onClose={() => setEditingDept(null)}
+          onSaved={(patch) => saveDeptProfile(editingDept.slug, patch)}
         />
       )}
 

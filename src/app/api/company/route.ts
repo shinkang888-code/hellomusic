@@ -6,7 +6,9 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const [departments, employees, sites, stats] = await Promise.all([
-      sql`SELECT slug, label, color, icon, sort FROM departments ORDER BY sort`,
+      sql`SELECT slug, label, color, icon, sort, real_member_name,
+                 (real_member_avatar IS NOT NULL AND real_member_avatar <> '') AS has_real_avatar
+          FROM departments ORDER BY sort`,
       sql`SELECT id, slug, department_slug, name, description, color, emoji, vibe, status, current_task
           FROM employees ORDER BY department_slug, id`,
       sql`SELECT id, name, url, department_slug, status, http_code, last_checked

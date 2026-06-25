@@ -1,11 +1,28 @@
 import { NextResponse } from "next/server";
 import { sql, type Site } from "@/lib/db";
+import {
+  scanSiteSecurity,
+  summarizeFindings,
+  type SecurityFinding,
+} from "@/lib/logshield/site-scan";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
-// 관제탑: 등록된 사이트를 실시간 점검하고 결함 발견 시 할 일판(tasks)에 자동 등록
-async function checkOne(site: Site): Promise<{ url: string; status: string; code: number | null }> {
+type SiteCheckResult = {
+  url: string;
+  name: string;
+  status: string;
+  code: number | null;
+  securityScore: number;
+  securityGrade: string;
+  findings: SecurityFinding[];
+};
+
+async function checkOne(site: Site): Promise<SiteCheckResult> {
+  let status = "unknown";
+  let code: number | null = null;
+
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
@@ -15,28 +32,47 @@ async function checkOne(site: Site): Promise<{ url: string; status: string; code
       redirect: "follow",
     });
     clearTimeout(timer);
-    const ok = res.status < 400;
-    return { url: site.url, status: ok ? "up" : "down", code: res.status };
+    code = res.status;
+    status = res.status < 400 ? "up" : "down";
   } catch {
-    return { url: site.url, status: "down", code: null };
+    status = "down";
+    code = null;
   }
+
+  const { findings } = await scanSiteSecurity(site.name, site.url, status, code);
+  const { score, grade } = summarizeFindings(findings);
+
+  return {
+    url: site.url,
+    name: site.name,
+    status,
+    code,
+    securityScore: score,
+    securityGrade: grade,
+    findings,
+  };
 }
 
 export async function POST() {
   return runCheck();
 }
 
-// Vercel Cron 은 GET 으로 호출됨
 export async function GET() {
   return runCheck();
 }
 
 async function runCheck() {
   try {
-    const sites = (await sql`SELECT id, name, url, department_slug, status, http_code, last_checked FROM sites`) as Site[];
+    const sites = (await sql`
+      SELECT id, name, url, department_slug, status, http_code, last_checked
+      FROM sites
+    `) as Site[];
+
     const results = await Promise.all(sites.map(checkOne));
 
     let downCount = 0;
+    let highRiskCount = 0;
+
     for (let i = 0; i < sites.length; i++) {
       const s = sites[i];
       const r = results[i];
@@ -45,9 +81,13 @@ async function runCheck() {
         UPDATE sites SET status = ${r.status}, http_code = ${r.code}, last_checked = now()
         WHERE id = ${s.id}
       `;
+
+      if (r.status === "down") downCount += 1;
+      if (r.securityGrade === "critical" || r.securityGrade === "high") {
+        highRiskCount += 1;
+      }
+
       if (r.status === "down") {
-        downCount += 1;
-        // 결함 → 담당 부서 직원 error 표시
         if (s.department_slug) {
           await sql`
             UPDATE employees SET status = 'error', current_task = ${`🚨 ${s.name} 사이트 장애 대응`}, updated_at = now()
@@ -55,23 +95,35 @@ async function runCheck() {
               AND id = (SELECT id FROM employees WHERE department_slug = ${s.department_slug} ORDER BY id LIMIT 1)
           `;
         }
-        // 새 장애일 때만 할 일판 등록
         if (prev !== "down") {
           await sql`
             INSERT INTO tasks (title, status, department_slug, source)
             VALUES (${`🚨 [장애] ${s.name} (${s.url}) 점검 필요`}, 'todo', ${s.department_slug}, 'control-tower')
           `;
-          await sql`INSERT INTO event_log (actor, message) VALUES ('관제탑', ${`${s.name} 사이트 장애 감지 → 할 일판 등록`})`;
+          await sql`
+            INSERT INTO event_log (actor, message)
+            VALUES ('LogShield 관제탑', ${`${s.name} 사이트 장애 감지 → 할 일판 등록`})
+          `;
         }
+      } else if (r.securityGrade === "critical" || r.securityGrade === "high") {
+        await sql`
+          INSERT INTO event_log (actor, message)
+          VALUES ('LogShield 관제탑', ${`${s.name} 보안 위험 ${r.securityGrade} (점수 ${r.securityScore}) — ${r.findings.filter((f) => f.severity === "critical" || f.severity === "high").map((f) => f.title).slice(0, 2).join(", ")}`})
+        `;
       }
     }
 
-    await sql`INSERT INTO event_log (actor, message) VALUES ('관제탑', ${`사이트 ${sites.length}개 점검 완료 (장애 ${downCount})`})`;
+    await sql`
+      INSERT INTO event_log (actor, message)
+      VALUES ('LogShield 관제탑', ${`사이트 ${sites.length}개 점검 · 장애 ${downCount} · 고위험 ${highRiskCount}`})
+    `;
 
     return NextResponse.json({
       ok: true,
+      engine: "Lonex LogShield",
       checked: sites.length,
       down: downCount,
+      highRisk: highRiskCount,
       results,
     });
   } catch (error) {

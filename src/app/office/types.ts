@@ -4,6 +4,8 @@ export type Department = {
   color: string;
   icon: string | null;
   sort: number;
+  real_member_name: string | null;
+  has_real_avatar: boolean;
 };
 
 export type EmployeeStatus =
