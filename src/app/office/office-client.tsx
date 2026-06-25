@@ -328,7 +328,7 @@ export function OfficeClient() {
                   <p className="text-xs text-slate-600">배정된 팀원이 없습니다.</p>
                 ) : (
                 <div className="flex flex-wrap gap-1.5">
-                  {emps.map((emp) => {
+                  {emps.slice(0, 1).map((emp) => {
                     const meta = STATUS_META[emp.status];
                     return (
                       <div
@@ -350,27 +350,21 @@ export function OfficeClient() {
                             } as React.CSSProperties
                           }
                         >
-                          {/* 진행 방향에 맞춰 얼굴 전면 회전 (이미지만 flip — ring/상태점 유지) */}
-                          <span
-                            className="anim-face-walk flex size-full items-center justify-center"
-                            style={
-                              {
-                                "--wd": `${6 + ((emp.id * 13) % 7)}s`,
-                                "--wdelay": `${(emp.id * 7) % 5}s`,
-                              } as React.CSSProperties
-                            }
-                          >
+                          {/* 얼굴(머리)만 보이도록 상단으로 줌인 크롭 — 원형으로 클리핑 */}
+                          <span className="flex size-full items-center justify-center overflow-hidden rounded-full">
                             <Image
                               src={avatarFor(emp.department_slug)}
                               alt={emp.name}
                               width={44}
                               height={44}
-                              className="size-full rounded-full object-contain"
-                              style={
-                                baseFlip(emp.department_slug)
-                                  ? { transform: "scaleX(-1)" }
-                                  : undefined
-                              }
+                              className="size-full rounded-full object-cover"
+                              style={{
+                                objectPosition: "50% 6%",
+                                transformOrigin: "50% 8%",
+                                transform: `scale(2.6)${
+                                  baseFlip(emp.department_slug) ? " scaleX(-1)" : ""
+                                }`,
+                              }}
                             />
                           </span>
                           {emp.emoji && (
