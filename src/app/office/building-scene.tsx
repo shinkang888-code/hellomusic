@@ -5,9 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatedFloorPlan } from "./animated-floor-plan";
 import {
   FLOOR_ROOMS,
+  avatarPath,
   chitchatForRoom,
   type FloorRoom,
 } from "./floor-plan-rooms";
+import {
+  DEMO_DEPARTMENTS,
+  isDemoMode,
+  resolveRoomEmployee,
+} from "./demo-characters";
 import { type Department, type Employee, STATUS_META } from "./types";
 import { avatarForEmployee } from "./avatars";
 
@@ -34,6 +40,11 @@ function chitchatFor(emp: Employee, room: FloorRoom, tick: number): string {
   return chitchatForRoom(room, emp.id, tick);
 }
 
+function avatarSrc(room: FloorRoom, emp: Employee): string {
+  if (emp.id >= 9000) return avatarPath(room.demo.avatar);
+  return avatarForEmployee(emp.slug);
+}
+
 export function BuildingScene({
   departments,
   employees,
@@ -43,31 +54,23 @@ export function BuildingScene({
   employees: Employee[];
   onSelect: (e: Employee) => void;
 }) {
+  const demo = isDemoMode(employees);
+  const depts = departments.length > 0 ? departments : DEMO_DEPARTMENTS;
+
   const deptBySlug = useMemo(
-    () => new Map(departments.map((d) => [d.slug, d])),
-    [departments],
+    () => new Map(depts.map((d) => [d.slug, d])),
+    [depts],
   );
 
   const slots = useMemo<Slot[]>(() => {
-    const byZone = new Map<string, Employee[]>();
-    for (const e of employees) {
-      const list = byZone.get(e.department_slug) ?? [];
-      list.push(e);
-      byZone.set(e.department_slug, list);
-    }
     const zoneIdx = new Map<string, number>();
-
     return FLOOR_ROOMS.map((room) => {
+      const rep = resolveRoomEmployee(room, employees, zoneIdx);
       const dept = deptBySlug.get(room.zone);
-      const pool = byZone.get(room.zone) ?? [];
-      if (!dept || pool.length === 0) return null;
-      const idx = zoneIdx.get(room.zone) ?? 0;
-      zoneIdx.set(room.zone, idx + 1);
-      const rep = pool[idx % pool.length];
-      if (!rep) return null;
+      if (!dept) return null;
       return { room, dept, rep };
     }).filter(Boolean) as Slot[];
-  }, [departments, employees, deptBySlug]);
+  }, [employees, deptBySlug]);
 
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -90,11 +93,16 @@ export function BuildingScene({
               chibi 캐릭터가 각 실에서 잡담해요 — 머리·팔만 살짝 움직여요
             </p>
           </div>
-          <div className="flex flex-wrap gap-1.5 text-[9px] font-semibold tracking-wide">
+          <div className="flex flex-wrap items-center gap-2">
+            {demo && (
+              <span className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2 py-0.5 text-[9px] text-amber-200">
+                DEMO
+              </span>
+            )}
             {FLOOR_ROOMS.slice(0, 4).map((r) => (
               <span
                 key={r.id}
-                className="rounded-full border border-[#C9A962]/40 bg-[#FAF8F4]/10 px-2.5 py-1 text-[#E8D5A8]"
+                className="rounded-full border border-[#C9A962]/40 bg-[#FAF8F4]/10 px-2.5 py-1 text-[9px] font-semibold tracking-wide text-[#E8D5A8]"
               >
                 {r.labelKo}
               </span>
@@ -106,86 +114,74 @@ export function BuildingScene({
       <div className="hello-floor-frame relative">
         <AnimatedFloorPlan />
 
-        {slots.length === 0 ? (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#3D3D3D]/40 px-6 text-center backdrop-blur-[2px]">
-            <p className="rounded-2xl border border-[#C9A962]/40 bg-[#FAF8F4] px-5 py-4 text-sm font-medium text-[#3D3D3D] shadow-lg">
-              캐릭터 데이터가 없습니다.
-              <br />
-              <code className="mt-2 inline-block text-xs text-muted">
-                npm run init-db
-              </code>
-            </p>
-          </div>
-        ) : (
-          <div className="pointer-events-none absolute inset-0 z-10">
-            {slots.map((s, i) => {
-              const meta = STATUS_META[s.rep.status];
-              const msg = chitchatFor(s.rep, s.room, tick);
-              const roleLabel = s.rep.slug.includes("director")
-                ? "원장"
-                : s.rep.slug.includes("teacher") || s.rep.slug.includes("admin")
-                  ? "강사"
-                  : "원생";
-              const gestureClass =
-                i % 3 === 0
-                  ? "anim-chibi-head"
-                  : i % 3 === 1
-                    ? "anim-chibi-arm"
-                    : "anim-chibi-idle";
+        <div className="pointer-events-none absolute inset-0 z-10">
+          {slots.map((s, i) => {
+            const meta = STATUS_META[s.rep.status];
+            const msg = chitchatFor(s.rep, s.room, tick);
+            const roleLabel = s.rep.slug.includes("director")
+              ? "원장"
+              : s.rep.slug.includes("teacher") ||
+                  s.rep.slug.includes("admin")
+                ? "강사"
+                : "원생";
+            const gestureClass =
+              i % 3 === 0
+                ? "anim-chibi-head"
+                : i % 3 === 1
+                  ? "anim-chibi-arm"
+                  : "anim-chibi-idle";
 
-              return (
+            return (
+              <div
+                key={`${s.room.id}-${s.rep.slug}`}
+                className="hello-char-slot absolute -translate-x-1/2 -translate-y-[85%]"
+                style={{
+                  top: `${s.room.top}%`,
+                  left: `${s.room.left}%`,
+                }}
+              >
                 <div
-                  key={`${s.room.id}-${s.rep.slug}`}
-                  className="absolute -translate-x-1/2 -translate-y-1/2"
-                  style={{
-                    top: `${s.room.top}%`,
-                    left: `${s.room.left}%`,
-                  }}
+                  className="bubble-floor bubble-floor-hello hello-bubble-show mb-1"
+                  aria-live="polite"
                 >
-                  <span
-                    key={`${s.rep.id}-${tick}`}
-                    className="bubble-floor bubble-floor-hello bubble-pop"
-                    title={msg}
-                  >
+                  <span key={`${s.rep.id}-${tick}`} className="hello-bubble-text">
                     {msg}
                   </span>
+                </div>
 
-                  <button
-                    type="button"
-                    onClick={() => onSelect(s.rep)}
-                    title={`${s.rep.name} · ${s.room.labelKo}`}
-                    className="pointer-events-auto group flex flex-col items-center transition-transform hover:scale-105 active:scale-95"
+                <button
+                  type="button"
+                  onClick={() => onSelect(s.rep)}
+                  title={`${s.rep.name} · ${s.room.labelKo}`}
+                  className="pointer-events-auto group flex flex-col items-center transition-transform hover:scale-105 active:scale-95"
+                >
+                  <span className="mb-0.5 max-w-[80px] truncate rounded-full border border-[#C9A962]/50 bg-[#3D3D3D]/85 px-2 py-0.5 text-[8px] font-semibold tracking-wide text-[#E8D5A8] shadow-sm">
+                    {roleLabel} {s.rep.name}
+                  </span>
+
+                  <span
+                    className="relative inline-block"
+                    style={idleVars(s.rep.id + i)}
                   >
-                    <span
-                      className="mb-0.5 max-w-[80px] truncate rounded-full border border-[#C9A962]/50 bg-[#3D3D3D]/85 px-2 py-0.5 text-[8px] font-semibold tracking-wide text-[#E8D5A8] shadow-sm"
-                    >
-                      {roleLabel} {s.rep.name}
-                    </span>
-
-                    <span
-                      className="relative inline-block"
-                      style={idleVars(s.rep.id + i)}
-                    >
-                      <span className={`${gestureClass} inline-block`}>
-                        <Image
-                          src={avatarForEmployee(s.rep.slug)}
-                          alt={s.rep.name}
-                          width={72}
-                          height={72}
-                          className="h-[clamp(40px,8vw,58px)] w-auto object-contain drop-shadow-[0_4px_12px_rgba(61,61,61,0.25)]"
-                          priority={i < 4}
-                        />
-                      </span>
-                      <span
-                        className={`absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-[#FAF8F4] shadow-sm ${meta.dot}`}
+                    <span className={`${gestureClass} inline-block`}>
+                      <Image
+                        src={avatarSrc(s.room, s.rep)}
+                        alt={s.rep.name}
+                        width={80}
+                        height={80}
+                        className="h-[clamp(44px,9vw,62px)] w-auto object-contain drop-shadow-[0_4px_14px_rgba(61,61,61,0.35)]"
+                        priority={i < 4}
                       />
                     </span>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                    <span
+                      className={`absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-[#FAF8F4] shadow-sm ${meta.dot}`}
+                    />
+                  </span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2 border-t border-[#C9A962]/25 bg-[#3D3D3D] px-4 py-2.5 text-[10px] font-medium text-[#E5E2DC]/70">

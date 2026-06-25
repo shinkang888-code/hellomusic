@@ -9,8 +9,8 @@ export function AnimatedFloorPlan() {
   return (
     <div className="hello-iso-floor relative w-full overflow-hidden bg-[#FAF8F4]">
       <Image
-        src="/brand/hello-academy-isometric.png"
-        alt="Hello Music Academy 이소메트릭 평면도"
+        src="/brand/hello-academy-isometric-empty.png"
+        alt="Hello Music Academy 이소메트릭 평면도 (캐릭터 없음)"
         width={1200}
         height={750}
         className="hello-iso-floor-img h-auto w-full object-cover object-center"

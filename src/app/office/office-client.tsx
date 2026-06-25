@@ -12,6 +12,7 @@ import {
 } from "./types";
 import { avatarFor, baseFlip } from "./avatars";
 import { BuildingScene } from "./building-scene";
+import { getDemoCompanyData } from "./demo-characters";
 import { AcademyCounselChat } from "./academy-counsel-chat";
 import { AcademyInfoModal } from "./academy-info-modal";
 import { HelloManagerButton } from "./hello-manager-button";
@@ -37,12 +38,27 @@ export function OfficeClient() {
   );
 
   const load = useCallback(async () => {
-    const [c, e] = await Promise.all([
-      fetch("/api/company", { cache: "no-store" }).then((r) => r.json()),
-      fetch("/api/events", { cache: "no-store" }).then((r) => r.json()),
-    ]);
-    if (!c.error) setData(c);
-    if (!e.error) setEvents(e.events);
+    try {
+      const [c, e] = await Promise.all([
+        fetch("/api/company", { cache: "no-store" }).then((r) => r.json()),
+        fetch("/api/events", { cache: "no-store" }).then((r) => r.json()),
+      ]);
+      if (!c.error) {
+        const demo = getDemoCompanyData();
+        setData({
+          ...c,
+          departments: c.departments?.length ? c.departments : demo.departments,
+          employees: c.employees?.length ? c.employees : demo.employees,
+          sites: c.sites?.length ? c.sites : demo.sites,
+          stats: c.employees?.length ? c.stats : demo.stats,
+        });
+      } else {
+        setData(getDemoCompanyData());
+      }
+      if (!e.error) setEvents(e.events);
+    } catch {
+      setData(getDemoCompanyData());
+    }
     setLoading(false);
   }, []);
 
@@ -135,8 +151,8 @@ export function OfficeClient() {
 
   if (!data) {
     return (
-      <div className="flex h-[60vh] items-center justify-center text-rose-400">
-        데이터베이스 연결을 확인해 주세요. (DATABASE_URL)
+      <div className="flex h-[60vh] items-center justify-center text-muted">
+        데이터를 불러오는 중…
       </div>
     );
   }
