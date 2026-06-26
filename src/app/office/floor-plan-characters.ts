@@ -1,6 +1,13 @@
-/** 평면도 위 고정 캐릭터 슬롯 — 원장 / 레슨 / 연습 */
+/** 평면도 위 고정 캐릭터 슬롯 — 원장 / 레슨 / 연습 (Pixar 전신) */
 
 import type { EmployeeStatus } from "./types";
+import type { PixarCastKey } from "./pixar-cast";
+
+export type FloorCharacterPose =
+  | "mentor-sit"
+  | "piano-teach"
+  | "piano-play"
+  | "violin-practice";
 
 export type FloorCharacterSlot = {
   id: string;
@@ -9,16 +16,26 @@ export type FloorCharacterSlot = {
   slug: string;
   name: string;
   avatar: string;
+  castKey: PixarCastKey;
+  pose: FloorCharacterPose;
   zone: "room-director" | "room-admin" | "room-teachers" | "room-students";
+  /** 이소메트릭 empty 배경 기준 발 위치 (%) */
   top: number;
   left: number;
-  scale?: number;
+  /** 전신 렌더 높이 배율 */
+  heightScale?: number;
+  flip?: boolean;
   status: EmployeeStatus;
   gesture: "head" | "arm" | "idle";
   chitchat: string[];
 };
 
-/** 이소메트릭 배경(empty) 기준 좌표 (%) */
+/**
+ * hello-academy-isometric.png 레퍼런스 기준 배치
+ * - 멘토 라운지: 1:1 멘토링
+ * - 그랜드 허브: 그랜드 피아노 레슨
+ * - 스마트 연습실: 바이올린 연습
+ */
 export const FLOOR_CHARACTERS: FloorCharacterSlot[] = [
   {
     id: "director",
@@ -27,10 +44,12 @@ export const FLOOR_CHARACTERS: FloorCharacterSlot[] = [
     slug: "director-principal",
     name: "김원장",
     avatar: "director-male",
+    castKey: "director-principal",
+    pose: "mentor-sit",
     zone: "room-director",
-    top: 26,
-    left: 83,
-    scale: 1.05,
+    top: 24,
+    left: 84,
+    heightScale: 1.02,
     status: "meeting",
     gesture: "head",
     chitchat: [
@@ -47,9 +66,12 @@ export const FLOOR_CHARACTERS: FloorCharacterSlot[] = [
     slug: "teacher-park",
     name: "박서연",
     avatar: "teacher-female",
+    castKey: "teacher-park",
+    pose: "piano-teach",
     zone: "room-teachers",
-    top: 41,
-    left: 44,
+    top: 36,
+    left: 41,
+    heightScale: 1.08,
     status: "working",
     gesture: "arm",
     chitchat: [
@@ -66,10 +88,12 @@ export const FLOOR_CHARACTERS: FloorCharacterSlot[] = [
     slug: "student-doyoon",
     name: "도윤",
     avatar: "student-boy",
+    castKey: "student-doyoon",
+    pose: "piano-play",
     zone: "room-students",
-    top: 46,
-    left: 54,
-    scale: 0.92,
+    top: 41,
+    left: 50,
+    heightScale: 0.9,
     status: "working",
     gesture: "idle",
     chitchat: [
@@ -86,9 +110,12 @@ export const FLOOR_CHARACTERS: FloorCharacterSlot[] = [
     slug: "student-jia",
     name: "지아",
     avatar: "student-girl",
+    castKey: "student-jia",
+    pose: "violin-practice",
     zone: "room-students",
-    top: 59,
-    left: 41,
+    top: 57,
+    left: 39,
+    heightScale: 0.94,
     status: "working",
     gesture: "head",
     chitchat: [
@@ -107,13 +134,20 @@ export function chitchatForCharacter(
   return slot.chitchat[(slot.id.length + tick) % slot.chitchat.length];
 }
 
+/** @deprecated chibi 경로 — 그리드 뷰 등 레거시 */
 export function avatarPath(avatarKey: string): string {
   return `/characters/chibi/${avatarKey}.png`;
 }
 
-/** 방 라벨 (푸터·헤더용) */
 export const FLOOR_SCENE_LABELS = [
   "멘토 라운지",
   "그랜드 허브",
   "스마트 연습실",
 ] as const;
+
+export const POSE_LABELS: Record<FloorCharacterPose, string> = {
+  "mentor-sit": "멘토링",
+  "piano-teach": "레슨 지도",
+  "piano-play": "피아노 연주",
+  "violin-practice": "바이올린 연습",
+};

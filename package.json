@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "node scripts/seed.mjs",
-    "init-db": "node scripts/init-schema.mjs && node scripts/seed.mjs"
+    "init-db": "node scripts/init-schema.mjs && node scripts/seed.mjs",
+    "resync-hellomusic": "node scripts/resync-hellomusic.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

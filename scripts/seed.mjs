@@ -48,8 +48,14 @@ async function main() {
       INSERT INTO employees (slug, department_slug, name, description, color, emoji, vibe, status, current_task)
       VALUES (${a.slug}, ${a.division}, ${a.name}, ${a.description}, ${a.color}, ${a.emoji}, ${a.vibe}, ${status}, ${task})
       ON CONFLICT (slug) DO UPDATE
-        SET name = EXCLUDED.name, description = EXCLUDED.description,
-            color = EXCLUDED.color, emoji = EXCLUDED.emoji, vibe = EXCLUDED.vibe
+        SET department_slug = EXCLUDED.department_slug,
+            name = EXCLUDED.name,
+            description = EXCLUDED.description,
+            color = EXCLUDED.color,
+            emoji = EXCLUDED.emoji,
+            vibe = EXCLUDED.vibe,
+            status = EXCLUDED.status,
+            current_task = EXCLUDED.current_task
     `;
     n += 1;
   }
@@ -66,7 +72,9 @@ async function main() {
     await sql`
       INSERT INTO sites (name, url, department_slug, status)
       VALUES (${name}, ${url}, ${dept}, 'unknown')
-      ON CONFLICT (url) DO NOTHING
+      ON CONFLICT (url) DO UPDATE
+        SET name = EXCLUDED.name,
+            department_slug = EXCLUDED.department_slug
     `;
   }
   console.log(`사이트 ${sites.length}개 시드 완료`);

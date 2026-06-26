@@ -6,11 +6,12 @@ import { AnimatedFloorPlan } from "./animated-floor-plan";
 import {
   FLOOR_CHARACTERS,
   FLOOR_SCENE_LABELS,
-  avatarPath,
+  POSE_LABELS,
   chitchatForCharacter,
   type FloorCharacterSlot,
 } from "./floor-plan-characters";
 import { resolveFloorCharacter } from "./demo-characters";
+import { pixarFramesForCast } from "./pixar-cast";
 import { type Department, type Employee, STATUS_META } from "./types";
 
 type Slot = {
@@ -18,23 +19,72 @@ type Slot = {
   rep: Employee;
 };
 
-function idleVars(id: number): React.CSSProperties {
-  return {
-    "--idle-dur": `${3.2 + (id % 4) * 0.7}s`,
-    "--idle-delay": `${(id * 1.1) % 4}s`,
-    "--gesture-dur": `${2 + (id % 3) * 0.5}s`,
-    "--gesture-delay": `${(id * 0.6) % 3}s`,
-  } as React.CSSProperties;
-}
+/** 원본 lonex Walker — cast 2프레임 교차로 가벼운 동작 */
+function PixarWalker({
+  character,
+  alt,
+  active,
+  seed,
+}: {
+  character: FloorCharacterSlot;
+  alt: string;
+  active: boolean;
+  seed: number;
+}) {
+  const frames = useMemo(
+    () => pixarFramesForCast(character.castKey),
+    [character.castKey],
+  );
+  const [idx, setIdx] = useState(0);
 
-function gestureClass(g: FloorCharacterSlot["gesture"]): string {
-  if (g === "head") return "anim-chibi-head";
-  if (g === "arm") return "anim-chibi-arm";
-  return "anim-chibi-idle";
-}
+  useEffect(() => {
+    if (!active) {
+      setIdx(0);
+      return;
+    }
+    let i = seed % frames.length;
+    const t = setInterval(() => {
+      i = (i + 1) % frames.length;
+      setIdx(i);
+    }, 280 + (seed % 80));
+    return () => clearInterval(t);
+  }, [active, seed, frames.length]);
 
-function avatarSrc(slot: FloorCharacterSlot): string {
-  return avatarPath(slot.avatar);
+  const heightScale = character.heightScale ?? 1;
+  const gestureClass =
+    character.gesture === "head"
+      ? "anim-pixar-head"
+      : character.gesture === "arm"
+        ? "anim-pixar-arm"
+        : "anim-pixar-idle";
+
+  return (
+    <span
+      className={`hello-pixar-body ${gestureClass} block ${character.flip ? "-scale-x-100" : ""}`}
+      style={
+        {
+          "--pixar-scale": heightScale,
+          "--idle-dur": `${3.2 + (seed % 4) * 0.7}s`,
+          "--idle-delay": `${(seed * 1.1) % 4}s`,
+          "--gesture-dur": `${2 + (seed % 3) * 0.5}s`,
+          "--gesture-delay": `${(seed * 0.6) % 3}s`,
+        } as React.CSSProperties
+      }
+    >
+      {frames.map((src, f) => (
+        <Image
+          key={src}
+          src={src}
+          alt={alt}
+          width={160}
+          height={320}
+          className="hello-pixar-char h-[clamp(78px,14vw,118px)] w-auto object-contain object-bottom"
+          style={{ display: f === idx ? "block" : "none" }}
+          priority={f === 0}
+        />
+      ))}
+    </span>
+  );
 }
 
 function chitchatFor(emp: Employee, slot: FloorCharacterSlot, tick: number): string {
@@ -51,7 +101,6 @@ export function BuildingScene({
   employees: Employee[];
   onSelect: (e: Employee) => void;
 }) {
-  // 평면도 캐릭터는 DB 부서 slug(room-* / floor-*)와 무관하게 항상 표시
   const slots = useMemo<Slot[]>(() => {
     return FLOOR_CHARACTERS.map((character, i) => ({
       character,
@@ -77,7 +126,7 @@ export function BuildingScene({
               Hello Music · <span className="font-semibold">AI 학원 평면도</span>
             </h2>
             <p className="text-[11px] text-[#E5E2DC]/70">
-              원장 · 레슨 · 연습 — chibi가 가볍게 움직이며 잡담해요
+              Pixar 전신 캐릭터가 방마다 연주·레슨·연습하며 잡담해요
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5 text-[9px] font-semibold tracking-wide">
@@ -100,19 +149,20 @@ export function BuildingScene({
           {slots.map((s, i) => {
             const meta = STATUS_META[s.rep.status];
             const msg = chitchatFor(s.rep, s.character, tick);
-            const scale = s.character.scale ?? 1;
+            const active = s.rep.status !== "idle";
 
             return (
               <div
                 key={s.character.id}
-                className="hello-char-slot absolute -translate-x-1/2 -translate-y-[88%]"
+                className="hello-char-slot absolute"
                 style={{
                   top: `${s.character.top}%`,
                   left: `${s.character.left}%`,
+                  transform: "translate(-50%, -100%)",
                 }}
               >
                 <div
-                  className="bubble-floor bubble-floor-hello hello-bubble-show mb-1"
+                  className="bubble-floor bubble-floor-hello hello-bubble-show mb-1.5"
                   aria-live="polite"
                 >
                   <span
@@ -126,33 +176,24 @@ export function BuildingScene({
                 <button
                   type="button"
                   onClick={() => onSelect(s.rep)}
-                  title={`${s.character.roleLabel} ${s.rep.name} · ${s.character.scene}`}
-                  className="pointer-events-auto group flex flex-col items-center transition-transform hover:scale-105 active:scale-95"
+                  title={`${s.character.roleLabel} ${s.rep.name} · ${s.character.scene} · ${POSE_LABELS[s.character.pose]}`}
+                  className="pointer-events-auto group relative flex flex-col items-center transition-transform hover:scale-[1.03] active:scale-[0.98]"
                 >
-                  <span className="mb-0.5 max-w-[88px] truncate rounded-full border border-[#C9A962]/50 bg-[#3D3D3D]/85 px-2 py-0.5 text-[8px] font-semibold tracking-wide text-[#E8D5A8] shadow-sm">
+                  <span className="mb-1 max-w-[96px] truncate rounded-full border border-[#C9A962]/50 bg-[#3D3D3D]/88 px-2 py-0.5 text-[8px] font-semibold tracking-wide text-[#E8D5A8] shadow-sm">
                     {s.character.roleLabel} {s.rep.name}
                   </span>
 
-                  <span
-                    className="relative inline-block origin-bottom"
-                    style={idleVars(s.rep.id + i)}
-                  >
+                  <span className="hello-pixar-shadow absolute bottom-0 left-1/2 h-2 w-[42%] -translate-x-1/2 rounded-[50%] bg-[#3D3D3D]/35 blur-[2px]" />
+
+                  <span className="relative inline-block">
+                    <PixarWalker
+                      character={s.character}
+                      alt={s.rep.name}
+                      active={active}
+                      seed={s.rep.id + i}
+                    />
                     <span
-                      className={`${gestureClass(s.character.gesture)} inline-block origin-bottom ${
-                        scale < 1 ? "scale-90" : scale > 1 ? "scale-105" : ""
-                      }`}
-                    >
-                      <Image
-                        src={avatarSrc(s.character)}
-                        alt={s.rep.name}
-                        width={80}
-                        height={80}
-                        className="h-[clamp(46px,9.5vw,64px)] w-auto object-contain drop-shadow-[0_4px_14px_rgba(61,61,61,0.35)]"
-                        priority
-                      />
-                    </span>
-                    <span
-                      className={`absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-[#FAF8F4] shadow-sm ${meta.dot}`}
+                      className={`absolute bottom-1 right-0 size-2.5 rounded-full border-2 border-[#FAF8F4] shadow-sm ${meta.dot}`}
                     />
                   </span>
                 </button>
